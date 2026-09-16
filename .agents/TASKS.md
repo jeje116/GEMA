@@ -16,6 +16,7 @@ Status values:
 |---|---|---|---|---|
 | GEMA-001 | Existing Application Baseline Audit | DONE | N/A | Completed read-only baseline audit of existing Google AI Studio prototype |
 | GEMA-002 | Runnable Baseline & Prototype Stabilization | DONE | .agents/plans/GEMA-002-runnable-baseline-stabilization.md | Environment restored, 8 consumer defects repaired, build + runtime verified |
+| GEMA-003A | GitHub Repo Init & Project Migration Baseline | DONE | N/A | Initialized Git at workspace root, created .gitignore, committed baseline, configured remote https://github.com/jeje116/GEMA.git, pushed main |
 
 Rules:
 

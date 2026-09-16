@@ -1,6 +1,6 @@
 # GEMA — Technical Context
 
-Last reviewed: 2026-09-16 (post GEMA-002)
+Last reviewed: 2026-09-16 (post GEMA-003A)
 
 This file describes CURRENT VERIFIED SYSTEM FACTS.
 
@@ -54,7 +54,15 @@ Known pre-existing issues:
 
 ---
 
-## 3. Current Application Directory
+## 3. Repository & Application Directory
+
+Repository root:
+
+`D:\Projects\GEMA` (Git initialized, tracked on branch `main`)
+
+Remote origin:
+
+`https://github.com/jeje116/GEMA.git`
 
 Current application source:
 

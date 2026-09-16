@@ -1,0 +1,31 @@
+# Dependencies
+**/node_modules/
+
+# Build output
+**/dist/
+**/.vite/
+
+# Test output
+**/coverage/
+**/playwright-report/
+**/test-results/
+
+# Logs
+*.log
+
+# Environment files (populated)
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.production.local
+**/.env.test.local
+
+# Allow environment templates
+!**/.env.example
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Playwright MCP session artifacts (machine-local)
+.playwright-mcp/

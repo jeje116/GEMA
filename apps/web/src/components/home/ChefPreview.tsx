@@ -77,11 +77,11 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
 
   return (
     <section ref={containerRef} className="bg-[var(--ink)] text-white relative lg:h-[150vh]">
-      {/* SVG ClipPath Definition — Approved Blobmaker Shape #2 (normalized to objectBoundingBox) */}
+      {/* SVG ClipPath Definition — Approved Widened Blob (normalized to objectBoundingBox) */}
       <svg className="w-0 h-0 absolute pointer-events-none" aria-hidden="true" focusable="false">
         <defs>
           <clipPath id="chef-blob-shape2" clipPathUnits="objectBoundingBox">
-            <path d="M 0.7065,0.2105 C 0.774,0.265 0.8395,0.3165 0.848,0.3785 C 0.8565,0.4405 0.8085,0.5125 0.7815,0.5905 C 0.755,0.669 0.7505,0.7535 0.707,0.794 C 0.6635,0.835 0.582,0.8315 0.508,0.82 C 0.4345,0.809 0.369,0.7895 0.3305,0.7475 C 0.2915,0.7055 0.279,0.6405 0.286,0.587 C 0.293,0.5335 0.319,0.4915 0.322,0.4295 C 0.325,0.3675 0.3045,0.2855 0.3305,0.2175 C 0.3565,0.1495 0.428,0.0955 0.499,0.097 C 0.5695,0.0985 0.639,0.1555 0.7065,0.2105 Z" />
+            <path d="M 0.7725,0.2105 C 0.8615,0.265 0.948,0.3165 0.9595,0.3785 C 0.9705,0.4405 0.907,0.5125 0.8715,0.5905 C 0.8365,0.669 0.8305,0.7535 0.773,0.794 C 0.716,0.835 0.608,0.8315 0.5105,0.82 C 0.4135,0.809 0.327,0.7895 0.2765,0.7475 C 0.225,0.7055 0.2085,0.6405 0.2175,0.587 C 0.227,0.5335 0.261,0.4915 0.265,0.4295 C 0.269,0.3675 0.242,0.2855 0.2765,0.2175 C 0.3105,0.1495 0.405,0.0955 0.4985,0.097 C 0.5915,0.0985 0.6835,0.1555 0.7725,0.2105 Z" />
           </clipPath>
         </defs>
       </svg>
@@ -115,14 +115,14 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
               </motion.div>
             </div>
 
-            {/* Right Media Column: Blobmaker Shape #2 — Portrait 9:16 */}
+            {/* Right Media Column: Widened Blob — Portrait 9:16 */}
             <div className="order-1 lg:order-2 w-full max-w-lg mx-auto">
               <motion.div
                 ref={mediaRef}
                 style={prefersReduced ? {} : { filter: saturation }}
                 className="w-full relative aspect-[9/16] flex items-center justify-center p-3 sm:p-4"
               >
-                {/* Decorative Shape #2 Outline — uses original 200×200 path for exact geometry match */}
+                {/* Decorative Outline — uses original 200×200 path for exact geometry match */}
                 <svg
                   aria-hidden="true"
                   className="absolute -inset-3 sm:-inset-4 w-[calc(100%+24px)] sm:w-[calc(100%+32px)] h-[calc(100%+24px)] sm:h-[calc(100%+32px)] pointer-events-none"
@@ -130,7 +130,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                   preserveAspectRatio="none"
                 >
                   <path
-                    d="M41.3,-57.9C54.8,-47,67.9,-36.7,69.6,-24.3C71.3,-11.9,61.7,2.5,56.3,18.1C51,33.8,50.1,50.7,41.4,58.8C32.7,67,16.4,66.3,1.6,64C-13.1,61.8,-26.2,57.9,-33.9,49.5C-41.7,41.1,-44.2,28.1,-42.8,17.4C-41.4,6.7,-36.2,-1.7,-35.6,-14.1C-35,-26.5,-39.1,-42.9,-33.9,-56.5C-28.7,-70.1,-14.4,-80.9,-0.2,-80.6C13.9,-80.3,27.8,-68.9,41.3,-57.9Z"
+                    d="M54.5,-57.9C72.3,-47,89.6,-36.7,91.9,-24.3C94.1,-11.9,81.4,2.5,74.3,18.1C67.3,33.8,66.1,50.7,54.6,58.8C43.2,67,21.6,66.3,2.1,64C-17.3,61.8,-34.6,57.9,-44.7,49.5C-55,41.1,-58.3,28.1,-56.5,17.4C-54.6,6.7,-47.8,-1.7,-47,-14.1C-46.2,-26.5,-51.6,-42.9,-44.7,-56.5C-37.9,-70.1,-19,-80.9,-0.3,-80.6C18.3,-80.3,36.7,-68.9,54.5,-57.9Z"
                     transform="translate(100 100)"
                     fill="none"
                     stroke="var(--terracotta)"
@@ -157,7 +157,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                         loop
                         preload="metadata"
                         onCanPlay={() => setIsVideoReady(true)}
-                        className={`w-full h-full object-cover transition-opacity duration-700 ${
+                        className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
                           isVideoReady ? 'opacity-100' : 'opacity-0'
                         }`}
                         aria-label="Chef Mandif Warokka culinary vision"
@@ -169,7 +169,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                             alt="Chef Mandif Warokka"
                             fill
                             sizes="(max-width: 1024px) 100vw, 50vw"
-                            className="object-cover"
+                            className="object-cover object-center"
                             priority={false}
                           />
                         </div>
@@ -182,7 +182,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                       alt="Chef Mandif Warokka"
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover"
+                      className="object-cover object-center"
                       priority={false}
                     />
                   )}

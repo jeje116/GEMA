@@ -22,6 +22,9 @@ Status values:
 | GEMA-004B | Homepage Audio Choreography, Brand Scale & Chef Media Refinement | DONE | .agents/plans/GEMA-004B-homepage-audio-choreography-brand-scale-chef-refinement.md | Audio ducking, user intent preservation, hysteresis IntersectionObserver, navbar logo scale, multi-lobed organic blob verified |
 | GEMA-004C | Audio Regression, Header Theme Fix, Transition Brand Scale, Chef Video Staging, Google Maps & Direct WhatsApp Reservation | DONE | .agents/plans/GEMA-004C-audio-regression-header-transition-video-maps-whatsapp.md | Audio reliability, Experience navbar contrast, transition logo scale, chef video staging, Google Maps embed, direct WhatsApp CTAs verified |
 | GEMA-004D | Chef Blob #2, Gateway Audio Reliability, Reservation-to-WhatsApp Flow, Real Google Maps Embed | DONE | .agents/plans/GEMA-004D-chef-blob-audio-reservation-maps.md | Blobmaker Shape #2, sessionStorage audio intent, interactive WhatsApp reservation overlay, and zero-key Google Maps embed verified |
+| GEMA-004E | Chef Blob Geometry Refinement & WhatsApp Navigation Fix | DONE | .agents/plans/GEMA-004E-chef-blob-whatsapp-navigation-refinement.md | Widened organic blob geometry, fixed WhatsApp popup vs tab redirect behavior, 41/41 QA tests passed |
+| GEMA-005 | GitHub Baseline Commit & Netlify Design Staging Deployment | IN_PROGRESS | .agents/plans/GEMA-005-github-baseline-commit-netlify-staging.md | Publish current approved Next.js app to Netlify design staging environment |
+
 
 Rules:
 

@@ -84,14 +84,17 @@ export default function ReservationOverlay({ locale }: { locale: Locale }) {
     const message = buildWhatsAppMessage();
     const whatsAppUrl = `https://wa.me/${siteData.whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-    // Attempt popup; fallback to same-window navigation if blocked
-    const popup = window.open(whatsAppUrl, '_blank', 'noopener,noreferrer');
-    if (!popup) {
-      window.location.href = whatsAppUrl;
+    // Open new tab synchronously inside user gesture
+    const whatsappWindow = window.open('', '_blank');
+    if (whatsappWindow) {
+      whatsappWindow.opener = null;
+      whatsappWindow.location.href = whatsAppUrl;
+      closeReservation();
+    } else {
+      // Fallback only if popup creation actually fails
+      window.location.assign(whatsAppUrl);
     }
 
-    // Close overlay and reset form AFTER WhatsApp navigation attempt
-    closeReservation();
     setTimeout(() => {
       setFormData({ date: '', time: '', party: '', name: '', contact: '', occasion: '', notes: '' });
       setErrors({});

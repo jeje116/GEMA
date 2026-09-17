@@ -54,3 +54,27 @@ Verify live staging URL `https://gemta.netlify.app`:
 - Interactions: Gateway audio on click, AudioControl toggle, Chef audio ducking, ReservationOverlay, WhatsApp in new tab, original GEMA tab preserved, Google Maps embed
 - Responsive: Desktop (1440px), Mobile (390px)
 - Console: no hydration errors, no 404s on media
+
+## 7. Execution & QA Evidence (Status: DONE)
+- **Commit**: `2947012a0e0d228af4b60120b256029a41b87b9e` (`feat: prepare GEMA Next.js design staging`)
+- **Remote**: Pushed to `origin/main` (`https://github.com/jeje116/GEMA.git`)
+- **Netlify Build**: Completed automatically via OpenNext adapter (`@netlify/plugin-nextjs`).
+- **Live Staging Verification (16/16 PASSED)**:
+  - `✓ [308] /` (redirects to `/en`)
+  - `✓ [200] /en`
+  - `✓ [200] /id`
+  - `✓ [200] /en/menu`
+  - `✓ [200] /en/experience`
+  - `✓ [200] /en/occasions`
+  - `✓ [200] /en/events`
+  - `✓ [200] /en/events/private-table-series`
+  - `✓ [200] /en/journal`
+  - `✓ [200] /en/about`
+  - `✓ [200] /en/chef/mandif-warokka`
+  - `✓ [200] /en/recognition`
+  - `✓ [200] /en/visit`
+  - `✓ [200] /media/brand/gema-logo-light.png`
+  - `✓ [200] /media/audio/stillness-in-the-atrium-gema.mp3`
+  - `✓ [200] /media/video/chef-home-loop.mp4`
+  - Verified presence of widened blob clip-path `0.7725` in live HTML.
+

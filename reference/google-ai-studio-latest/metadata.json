@@ -1,0 +1,8 @@
+{
+  "name": "GEMA Restaurant App",
+  "description": "Italian classics, served with a touch of art. Concept MVP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

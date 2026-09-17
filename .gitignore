@@ -4,6 +4,10 @@
 # Build output
 **/dist/
 **/.vite/
+**/.next/
+
+# TypeScript build cache
+**/tsconfig.tsbuildinfo
 
 # Test output
 **/coverage/
@@ -15,12 +19,7 @@
 
 # Environment files (populated)
 **/.env
-**/.env.local
-**/.env.development.local
-**/.env.production.local
-**/.env.test.local
-
-# Allow environment templates
+**/.env.*
 !**/.env.example
 
 # OS metadata
@@ -29,3 +28,10 @@ Thumbs.db
 
 # Playwright MCP session artifacts (machine-local)
 .playwright-mcp/
+
+# Local media staging masters (transient source downloads)
+drive-download-*/
+
+# Root master/source media files (canonical copies live in apps/web/public/media/)
+/GEMA_brand.png
+/stillness-in-the-atrium_GEMA.mp3

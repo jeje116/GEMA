@@ -171,3 +171,16 @@ NOT YET DEFINED
 - event date/timezone policy
 - deployment environment
 - testing framework
+
+
+---
+
+## 11. GEMA-004C Verified Features (Post Netlify-Staging Readiness)
+
+- **Ambient Audio & Gateway Activation**: User click on Gateway starts audio synchronously (`stillness-in-the-atrium-gema.mp3`), loop enabled, volume ~0.30, singleton `audioManager` with reactive state synchronization and ducking support.
+- **Audio Control**: Floating interactive button in bottom-right (`z-40`). Accurately toggles user intent (`enabled` <-> `disabled`). User OFF intent strictly preserved through page scrolling and viewport changes.
+- **Header Contrast Mode**: Fully route-aware. Routes without dark hero media (e.g. `/experience`, `/visit`, `/menu`, `/about`) render solid ivory background with dark espresso text/logo. Routes with dark media hero (`/`, detail routes) render transparent light theme at top and switch to ivory on scroll.
+- **Brand Wordmark Transition**: Centered GEMA brand mark in `PageReveal` scaled to ~200px visible width on desktop and ~155px on mobile, accounting for transparent PNG canvas ratio (0.502).
+- **Chef Video Staging Loop**: Browser-compatible staging derivative created at `apps/web/public/media/video/chef-home-loop.mp4` (H.264, 18s continuous loop, 7.09MB, no audio track, fast-start moov atom at byte 32). Autoplays when in viewport (threshold >= 0.45) with ambient ducking to ~0.05; pauses when scrolled out (threshold < 0.22) restoring ambient volume.
+- **Google Maps Integration**: Iframe embed contract configured with `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY`. Graceful fallback card with direct link to Google Maps rendered when key is unset.
+- **Direct WhatsApp Reservation**: All primary reservation CTAs across header, hero, footer, mobile reserve bar, visit, occasions, and events route directly to `https://wa.me/6281252200049`.

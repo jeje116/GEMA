@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./globals.css";
+
+@theme {
+  --font-serif: var(--font-serif-cormorant), "Cormorant Garamond", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: var(--font-sans-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-condensed: var(--font-condensed-roboto), "Roboto Condensed", "Arial Narrow", sans-serif;
+
+  --color-ivory-50: var(--ivory-50);
+  --color-ivory-100: var(--ivory-100);
+  --color-ivory-200: var(--ivory-200);
+  --color-espresso-900: var(--espresso-900);
+  --color-espresso-800: var(--espresso-800);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-dark: var(--terracotta-dark);
+  --color-garden: var(--garden);
+  --color-sage: var(--sage);
+  --color-wine: var(--wine);
+  --color-white: var(--white);
+  --color-focus: var(--focus);
+
+  --background: var(--ivory-50);
+  --foreground: var(--espresso-900);
+}

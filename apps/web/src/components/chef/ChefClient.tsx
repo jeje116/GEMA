@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import PageReveal from '@/components/motion/PageReveal';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
@@ -8,6 +8,57 @@ import ResponsiveImage from '@/components/media/ResponsiveImage';
 
 export default function ChefClient() {
   const prefersReduced = useReducedMotionSafe();
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+
+  const [isPortraitRevealed, setIsPortraitRevealed] = useState(false);
+  const hasTriggeredReveal = useRef(false);
+  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Viewport trigger for portrait color reveal (Desktop & Mobile):
+  // Coordinates with PageReveal curtain (0.4s delay + 1.4s duration = 1.8s) so the portrait
+  // is presented in solid grayscale (100%) upon entrance completion, holds for ~350ms,
+  // then smoothly transitions to full color over ~800ms ease-out.
+  useEffect(() => {
+    if (prefersReduced || isPortraitRevealed) return;
+
+    let observerInstance: IntersectionObserver | null = null;
+    const revealDelayTimer = setTimeout(() => {
+      const el = imageContainerRef.current;
+      if (!el) return;
+
+      observerInstance = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (!entry) return;
+
+          // Enter threshold: ~30-40% visible (robust: >= 0.30)
+          if (entry.intersectionRatio >= 0.30 && !hasTriggeredReveal.current) {
+            hasTriggeredReveal.current = true;
+            // Hold grayscale state for approximately 350ms, then smoothly transition to full color
+            holdTimerRef.current = setTimeout(() => {
+              setIsPortraitRevealed(true);
+            }, 350);
+            observerInstance?.disconnect();
+          }
+        },
+        {
+          threshold: [0, 0.30, 0.35, 0.5, 1.0],
+        }
+      );
+
+      observerInstance.observe(el);
+    }, 1800);
+
+    return () => {
+      clearTimeout(revealDelayTimer);
+      if (observerInstance) {
+        observerInstance.disconnect();
+      }
+      if (holdTimerRef.current) {
+        clearTimeout(holdTimerRef.current);
+      }
+    };
+  }, [prefersReduced, isPortraitRevealed]);
 
   return (
     <PageReveal title="Chef Mandif Warokka" className="bg-[var(--ivory-50)] min-h-screen">
@@ -17,12 +68,24 @@ export default function ChefClient() {
           
           {/* Sticky Image Column */}
           <div className="lg:col-span-5 relative">
-            <div className="lg:sticky lg:top-32 w-full aspect-[3/4] overflow-hidden">
+            <div 
+              ref={imageContainerRef}
+              data-chef-portrait="true"
+              className="lg:sticky lg:top-32 w-full aspect-[3/4] overflow-hidden"
+              style={
+                !prefersReduced
+                  ? {
+                      filter: isPortraitRevealed ? 'grayscale(0%)' : 'grayscale(100%)',
+                      transition: isPortraitRevealed ? 'filter 800ms ease-out' : 'none',
+                    }
+                  : undefined
+              }
+            >
               <ResponsiveImage 
                 src="/media/chef/chef-mandif-warokka.jpg" 
                 alt="Chef Mandif Warokka"
                 className="w-full h-full"
-                imgClassName="grayscale hover:grayscale-0 transition-all duration-1000"
+                imgClassName={prefersReduced ? 'grayscale-0' : undefined}
                 priority
               />
             </div>

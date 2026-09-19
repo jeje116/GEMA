@@ -52,6 +52,9 @@ Status values:
 | GEMA-024D | Final Exhaustive Public Route Verification | DONE | N/A | Quadruple cross-checked routes via filesystem, links, sitemap, and localized paths; confirmed 100% route completeness |
 | GEMA-024E | Diagnose & Fix Chef Page 1 Issue | DONE | N/A | Diagnosed Next.js development overlay 1 Issue; confirmed external browser extension attribute injection; 0 issues in clean browser |
 | GEMA-025 | Isolated Payload CMS + PostgreSQL Scaffold (Phase 1) | DONE | .agents/plans/GEMA-025-isolated-payload-cms-scaffold.md | Phase 1 scaffold in apps/cms verified: PostgreSQL, Users auth, role access policies, Media upload & sharp thumbnails, EN/ID localization, Admin UI, REST API, zero apps/web regressions |
+| GEMA-025B | Chef Image Mobile Color Reveal | DONE | .agents/plans/GEMA-025B-chef-mobile-color-reveal.md | Mobile touch viewport-triggered one-time color reveal (350ms hold, 800ms ease-out transition, permanence verified, desktop hover preserved) |
+| GEMA-025C | Chef Detail Mobile Color Reveal Correction | DONE | .agents/plans/GEMA-025C-chef-detail-mobile-color-reveal.md | Corrected target to Chef detail page (/en/chef/mandif-warokka) large portrait; one-time mobile grayscale-to-color reveal (350ms hold, 800ms transition, reduced motion immediate full color, desktop hover preserved) |
+| GEMA-025D | Chef Detail Desktop Color Reveal | DONE | .agents/plans/GEMA-025D-chef-detail-desktop-color-reveal.md | Harmonized color reveal to Desktop on /en/chef/mandif-warokka (initial grayscale, 350ms hold, 800ms ease-out transition, permanent full color, old hover dependency removed, mobile preserved) |
 
 Rules:
 

@@ -19,12 +19,66 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isChefActive, setIsChefActive] = useState(false);
 
-  // Scroll saturation effect
+  // Scroll saturation effect for desktop
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start end', 'end start'],
   });
   const saturation = useTransform(scrollYProgress, [0.3, 0.6], ['grayscale(100%)', 'grayscale(0%)']);
+
+  // Capability-based touch device detection
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  // Mobile one-time color reveal state
+  const [isMobileRevealed, setIsMobileRevealed] = useState(false);
+  const hasTriggeredReveal = useRef(false);
+  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Desktop hover state
+  const [isDesktopHovered, setIsDesktopHovered] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: none), (pointer: coarse)');
+    setIsTouchDevice(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsTouchDevice(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  // Viewport trigger for mobile color reveal: triggers once when Chef image is ~35% visible
+  useEffect(() => {
+    if (!isTouchDevice || prefersReduced || isMobileRevealed) return;
+
+    const el = mediaRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+
+        // Enter threshold: ~30–35% visible (30–40% approved range)
+        if (entry.intersectionRatio >= 0.30 && !hasTriggeredReveal.current) {
+          hasTriggeredReveal.current = true;
+          // Hold grayscale state for approximately 350ms, then smoothly transition to full color
+          holdTimerRef.current = setTimeout(() => {
+            setIsMobileRevealed(true);
+          }, 350);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: [0, 0.30, 0.35, 0.5],
+      }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      if (holdTimerRef.current) {
+        clearTimeout(holdTimerRef.current);
+      }
+    };
+  }, [isTouchDevice, prefersReduced, isMobileRevealed]);
 
   // Native IntersectionObserver with hysteresis for Chef media active state and audio ownership
   useEffect(() => {
@@ -129,8 +183,21 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
             <div className="order-1 lg:order-2 w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[430px] max-h-[82vh] mx-auto flex items-center justify-center">
               <motion.div
                 ref={mediaRef}
-                style={prefersReduced ? {} : { filter: saturation }}
+                style={
+                  prefersReduced || isTouchDevice
+                    ? {}
+                    : {
+                        filter: isDesktopHovered ? 'grayscale(0%)' : saturation,
+                        transition: isDesktopHovered ? 'filter 600ms ease' : undefined,
+                      }
+                }
                 className="w-full relative aspect-[9/16] flex items-center justify-center p-3 sm:p-4 my-auto cursor-pointer"
+                onMouseEnter={() => {
+                  if (!isTouchDevice) setIsDesktopHovered(true);
+                }}
+                onMouseLeave={() => {
+                  if (!isTouchDevice) setIsDesktopHovered(false);
+                }}
                 onClick={() => {
                   const video = videoRef.current;
                   if (video && video.muted) {
@@ -161,7 +228,15 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                 {/* Portrait Media Container with Widened Blob ClipPath */}
                 <div 
                   className="w-full h-full relative overflow-hidden bg-[#1a1310] shadow-2xl"
-                  style={{ clipPath: 'url(#chef-blob-shape2)' }}
+                  style={{
+                    clipPath: 'url(#chef-blob-shape2)',
+                    ...(isTouchDevice && !prefersReduced
+                      ? {
+                          filter: isMobileRevealed ? 'grayscale(0%)' : 'grayscale(100%)',
+                          transition: 'filter 800ms ease-out',
+                        }
+                      : {}),
+                  }}
                 >
                   {homeAssets.chefVideo.src ? (
                     <>

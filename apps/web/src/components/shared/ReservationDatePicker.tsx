@@ -253,7 +253,7 @@ export default function ReservationDatePicker({
           aria-label={locale === 'id' ? 'Tanggal Pilihan' : 'Preferred Date'}
           aria-invalid={hasValidationError}
           aria-describedby={inlineError ? 'date-inline-error' : undefined}
-          className="flex-1 bg-transparent px-3 py-2.5 text-sm font-serif text-[var(--espresso-900)] placeholder:text-[var(--muted)] placeholder:font-serif focus:outline-none"
+          className="flex-1 bg-transparent px-3 py-2.5 text-sm font-sans text-[var(--espresso-900)] placeholder:text-[var(--muted)] focus:outline-none"
         />
 
         <button
@@ -306,7 +306,7 @@ export default function ReservationDatePicker({
                   value={viewMonth}
                   onChange={(e) => handleMonthChange(Number(e.target.value))}
                   aria-label="Select month"
-                  className="appearance-none bg-transparent text-xs sm:text-sm font-serif font-medium text-[var(--espresso-900)] pr-5 pl-2 py-1 rounded-xs hover:bg-[var(--ivory-200)]/50 focus:outline-none focus:ring-1 focus:ring-focus cursor-pointer border border-transparent hover:border-[var(--ivory-200)] transition-colors"
+                  className="appearance-none bg-transparent text-xs sm:text-sm font-sans font-medium text-[var(--espresso-900)] pr-5 pl-2 py-1 rounded-xs hover:bg-[var(--ivory-200)]/50 focus:outline-none focus:ring-1 focus:ring-focus cursor-pointer border border-transparent hover:border-[var(--ivory-200)] transition-colors"
                 >
                   {monthNames.map((name, idx) => {
                     const isPastMonth = viewYear === todayYear && idx < todayMonth - 1;
@@ -331,7 +331,7 @@ export default function ReservationDatePicker({
                   value={viewYear}
                   onChange={(e) => handleYearChange(Number(e.target.value))}
                   aria-label="Select year"
-                  className="appearance-none bg-transparent text-xs sm:text-sm font-serif font-medium text-[var(--espresso-900)] pr-5 pl-2 py-1 rounded-xs hover:bg-[var(--ivory-200)]/50 focus:outline-none focus:ring-1 focus:ring-focus cursor-pointer border border-transparent hover:border-[var(--ivory-200)] transition-colors"
+                  className="appearance-none bg-transparent text-xs sm:text-sm font-sans font-medium text-[var(--espresso-900)] pr-5 pl-2 py-1 rounded-xs hover:bg-[var(--ivory-200)]/50 focus:outline-none focus:ring-1 focus:ring-focus cursor-pointer border border-transparent hover:border-[var(--ivory-200)] transition-colors"
                 >
                   {availableYears.map((yr) => (
                     <option key={yr} value={yr} className="bg-[var(--ivory-50)] text-[var(--espresso-900)]">
@@ -386,7 +386,7 @@ export default function ReservationDatePicker({
                   aria-label={`${day} ${formatMonthYear(viewYear, viewMonth, locale)}`}
                   aria-selected={isSelected}
                   className={cn(
-                    'w-8 h-8 sm:w-8.5 sm:h-8.5 flex items-center justify-center text-xs font-serif rounded-full transition-all duration-150',
+                    'w-8 h-8 sm:w-8.5 sm:h-8.5 flex items-center justify-center text-xs font-sans rounded-full transition-all duration-150',
                     isPast && 'opacity-30 text-[var(--muted)] cursor-not-allowed',
                     !isPast && !isSelected && 'text-[var(--espresso-900)] hover:bg-[var(--ivory-200)]/70 cursor-pointer',
                     isToday && !isSelected && 'ring-1 ring-[var(--espresso-900)]/40 font-semibold',

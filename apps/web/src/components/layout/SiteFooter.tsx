@@ -85,11 +85,6 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
                 </Link>
               </li>
             </ul>
-            <div className="text-xs text-[var(--muted)] leading-relaxed space-y-1 pt-3 border-t border-[var(--espresso-800)]/40">
-              <p className="font-condensed uppercase tracking-wider text-[var(--ivory-200)] text-[11px]">Hours</p>
-              <p>Tue – Sun: 11:30 – 23:00</p>
-              <p className="text-[11px] text-[var(--muted)]/70">Closed on Mondays</p>
-            </div>
           </div>
 
           {/* Block 4: Social */}

@@ -7,18 +7,14 @@ export const siteData: SiteData = {
   phone: "0812-5220-0049",
   whatsappNumber: "6281252200049",
   email: "reservations@gemasurabaya.com",
-  openingHours: [
-    { en: "Monday - Sunday: 11:00 AM - 10:00 PM", id: "Senin - Minggu: 11:00 - 22:00" },
-    { en: "Concept hours - confirm before production", id: "Waktu konsep - konfirmasi sebelum produksi" }
-  ],
-  services: ["dine-in", "takeaway"],
+  openingHours: [],
+  services: ["dine-in"],
   instagramUrl: "https://instagram.com/gema.surabaya",
   contentStatus: {
     name: 'verified',
     fullAddress: 'verified',
     phone: 'verified',
     instagramUrl: 'verified',
-    openingHours: 'needs-confirmation',
   }
 };
 

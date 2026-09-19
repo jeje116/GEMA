@@ -16,7 +16,7 @@ export async function generateMetadata({
 
   return {
     title: `${t('nav.visit')} — GEMA`,
-    description: 'Visit GEMA at Jl. Musi No. 21, Tegalsari, Surabaya. Opening hours, directions, and reservation guidelines.',
+    description: 'Visit GEMA at Jl. Musi No. 21, Tegalsari, Surabaya. Location, directions, and reservation guidelines.',
     alternates: {
       canonical: `/${locale}/visit`,
       languages: {

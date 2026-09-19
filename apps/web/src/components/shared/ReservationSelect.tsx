@@ -78,7 +78,7 @@ export default function ReservationSelect({
           value ? 'text-[var(--espresso-900)]' : 'text-[var(--muted)]'
         )}
       >
-        <span className={cn('truncate font-serif', value && 'font-medium')}>{selectedOption ? selectedOption.label : placeholder}</span>
+        <span className={cn('truncate font-sans', value && 'font-medium')}>{selectedOption ? selectedOption.label : placeholder}</span>
         <ChevronDown
           className={cn(
             'w-4 h-4 text-[var(--espresso-900)]/60 flex-shrink-0 ml-2 transition-transform duration-200',
@@ -111,7 +111,7 @@ export default function ReservationSelect({
                     : 'text-[var(--espresso-800)] hover:bg-[var(--ivory-200)]/60'
                 )}
               >
-                <span className="font-serif">{option.label}</span>
+                <span className="font-sans">{option.label}</span>
                 {isSelected && (
                   <span className="flex items-center gap-1 text-[var(--terracotta)] text-xs">
                     <Check className="w-3.5 h-3.5" />

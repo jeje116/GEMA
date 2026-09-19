@@ -65,22 +65,6 @@ export default function VisitClient({ locale, siteData }: VisitClientProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-4">Hours of Operation</h2>
-              <div className="flex flex-col gap-2 text-[var(--espresso-900)]">
-                {siteData.openingHours.map((hours, idx) => (
-                  <p key={idx} className={idx === siteData.openingHours.length - 1 ? 'text-xs text-[var(--muted)] mt-2' : ''}>
-                    {l(hours)}
-                  </p>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
               <h2 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-4">Contact</h2>
               <div className="flex flex-col gap-2 text-[var(--espresso-900)]">
                 <p><a href={`tel:${siteData.phone.replace(/[^0-9]/g, '')}`} className="hover:text-[var(--terracotta)] transition-colors">{siteData.phone}</a></p>

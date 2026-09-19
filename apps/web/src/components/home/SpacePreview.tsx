@@ -51,23 +51,57 @@ export default function SpacePreview({ locale }: { locale: Locale }) {
           </div>
 
           <div className="md:col-span-7 md:col-start-6 order-1 md:order-2 grid grid-cols-2 gap-4">
-            <div className="mt-12 md:mt-24 relative aspect-[3/4] overflow-hidden">
-              <Image 
-                src={homeAssets.experience.indoor.src} 
-                alt={homeAssets.experience.indoor.alt}
-                fill
-                sizes="(max-width: 768px) 50vw, 30vw"
-                className="object-cover object-center"
-              />
+            <div className="mt-12 md:mt-24 relative aspect-[3/4] overflow-hidden bg-[var(--ivory-200)]">
+              {!prefersReduced && (
+                <motion.div
+                  initial={{ y: '0%' }}
+                  whileInView={{ y: '-100%' }}
+                  viewport={{ once: true, margin: '-10%' }}
+                  transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+                  className="absolute inset-0 z-10 bg-[var(--ivory-100)] pointer-events-none"
+                />
+              )}
+              <motion.div
+                initial={prefersReduced ? {} : { scale: 1.06 }}
+                whileInView={prefersReduced ? {} : { scale: 1 }}
+                viewport={{ once: true, margin: '-10%' }}
+                transition={{ duration: 1.2, ease: 'easeOut' }}
+                className="w-full h-full relative"
+              >
+                <Image 
+                  src={homeAssets.experience.indoor.src} 
+                  alt={homeAssets.experience.indoor.alt}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 30vw"
+                  className="object-cover object-center"
+                />
+              </motion.div>
             </div>
-            <div className="relative aspect-[3/4] overflow-hidden">
-              <Image 
-                src={homeAssets.experience.patio.src} 
-                alt={homeAssets.experience.patio.alt}
-                fill
-                sizes="(max-width: 768px) 50vw, 30vw"
-                className="object-cover object-center"
-              />
+            <div className="relative aspect-[3/4] overflow-hidden bg-[var(--ivory-200)]">
+              {!prefersReduced && (
+                <motion.div
+                  initial={{ y: '0%' }}
+                  whileInView={{ y: '-100%' }}
+                  viewport={{ once: true, margin: '-10%' }}
+                  transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }}
+                  className="absolute inset-0 z-10 bg-[var(--ivory-100)] pointer-events-none"
+                />
+              )}
+              <motion.div
+                initial={prefersReduced ? {} : { scale: 1.06 }}
+                whileInView={prefersReduced ? {} : { scale: 1 }}
+                viewport={{ once: true, margin: '-10%' }}
+                transition={{ duration: 1.2, ease: 'easeOut' }}
+                className="w-full h-full relative"
+              >
+                <Image 
+                  src={homeAssets.experience.patio.src} 
+                  alt={homeAssets.experience.patio.alt}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 30vw"
+                  className="object-cover object-center"
+                />
+              </motion.div>
             </div>
           </div>
         </div>

@@ -356,7 +356,7 @@ export default function ReservationOverlay({ locale }: { locale: Locale }) {
                       <div className="flex flex-col">
                         <span
                           className={cn(
-                            'text-sm font-serif leading-tight',
+                            'text-sm font-sans leading-tight',
                             formData.area === 'indoor'
                               ? 'text-[var(--espresso-900)] font-medium'
                               : 'text-[var(--espresso-800)]'
@@ -395,7 +395,7 @@ export default function ReservationOverlay({ locale }: { locale: Locale }) {
                       <div className="flex flex-col">
                         <span
                           className={cn(
-                            'text-sm font-serif leading-tight',
+                            'text-sm font-sans leading-tight',
                             formData.area === 'indoorGarden'
                               ? 'text-[var(--espresso-900)] font-medium'
                               : 'text-[var(--espresso-800)]'
@@ -440,7 +440,7 @@ export default function ReservationOverlay({ locale }: { locale: Locale }) {
                   {formData.area === 'indoorGarden' &&
                     formData.time &&
                     isSmokingPermittedAtTime('indoorGarden', formData.time) && (
-                      <p className="text-xs italic font-serif text-[var(--terracotta)] transition-colors">
+                      <p className="text-xs italic font-sans text-[var(--terracotta)] transition-colors">
                         {t('reservation.smoking.after')}
                       </p>
                     )}
@@ -516,7 +516,7 @@ export default function ReservationOverlay({ locale }: { locale: Locale }) {
                     name="occasion"
                     value={formData.occasion}
                     onChange={handleChange}
-                    className="px-3 py-2.5 border border-[var(--ivory-200)] rounded-none bg-transparent focus:outline-none focus:ring-1 focus:ring-focus text-sm font-serif text-[var(--espresso-900)] placeholder:text-[var(--muted)] placeholder:font-serif"
+                    className="px-3 py-2.5 border border-[var(--ivory-200)] rounded-none bg-transparent focus:outline-none focus:ring-1 focus:ring-focus text-sm font-sans text-[var(--espresso-900)] placeholder:text-[var(--muted)]"
                   />
                 </div>
 

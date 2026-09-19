@@ -55,6 +55,7 @@ Status values:
 | GEMA-025B | Chef Image Mobile Color Reveal | DONE | .agents/plans/GEMA-025B-chef-mobile-color-reveal.md | Mobile touch viewport-triggered one-time color reveal (350ms hold, 800ms ease-out transition, permanence verified, desktop hover preserved) |
 | GEMA-025C | Chef Detail Mobile Color Reveal Correction | DONE | .agents/plans/GEMA-025C-chef-detail-mobile-color-reveal.md | Corrected target to Chef detail page (/en/chef/mandif-warokka) large portrait; one-time mobile grayscale-to-color reveal (350ms hold, 800ms transition, reduced motion immediate full color, desktop hover preserved) |
 | GEMA-025D | Chef Detail Desktop Color Reveal | DONE | .agents/plans/GEMA-025D-chef-detail-desktop-color-reveal.md | Harmonized color reveal to Desktop on /en/chef/mandif-warokka (initial grayscale, 350ms hold, 800ms ease-out transition, permanent full color, old hover dependency removed, mobile preserved) |
+| GEMA-026 | Site Polish & Regression Audit | DONE | .agents/plans/GEMA-026-site-polish-and-regression-audit.md | Route scroll reset (scrollY=0), Google AI Studio motion restoration in The Space, operating hours provenance & removal, reservation form typography sans alignment |
 
 Rules:
 

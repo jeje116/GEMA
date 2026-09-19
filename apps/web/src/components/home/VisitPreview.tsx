@@ -54,22 +54,6 @@ export default function VisitPreview({ locale }: { locale: Locale }) {
                 viewport={{ once: true, margin: '-10%' }}
                 transition={{ delay: 0.2 }}
               >
-                <h3 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-3">Hours</h3>
-                <div className="flex flex-col gap-1 text-[var(--espresso-900)]">
-                  {siteData.openingHours.map((hours, idx) => (
-                    <p key={idx} className={idx === siteData.openingHours.length - 1 ? 'text-xs text-[var(--muted)] mt-2' : ''}>
-                      {l(hours, locale)}
-                    </p>
-                  ))}
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-10%' }}
-                transition={{ delay: 0.3 }}
-              >
                 <h3 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-3">Services</h3>
                 <div className="flex gap-4">
                   {siteData.services.map((service, idx) => (

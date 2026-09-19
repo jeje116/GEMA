@@ -136,7 +136,7 @@ export default function ReservationTimePicker({
           value && !disabled ? 'text-[var(--espresso-900)]' : 'text-[var(--muted)]'
         )}
       >
-        <span className={cn('truncate font-serif', value && !disabled ? 'font-medium' : '')}>{displayText}</span>
+        <span className={cn('truncate font-sans', value && !disabled ? 'font-medium' : '')}>{displayText}</span>
         <Clock className="w-4 h-4 text-[var(--espresso-900)]/60 flex-shrink-0 ml-2" aria-hidden="true" />
       </button>
 
@@ -205,7 +205,7 @@ export default function ReservationTimePicker({
                         : 'text-[var(--espresso-800)] hover:bg-[var(--ivory-200)]/60'
                     )}
                   >
-                    <span className="font-serif tracking-wide">{formatted}</span>
+                    <span className="font-sans tracking-wide">{formatted}</span>
                     {isSelected && (
                       <span className="flex items-center gap-1 text-[var(--terracotta)] text-xs">
                         <Check className="w-3.5 h-3.5" />

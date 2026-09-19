@@ -7,6 +7,7 @@ import AudioControl from '@/components/layout/AudioControl';
 import MobileReserveBar from '@/components/shared/MobileReserveBar';
 import ReservationOverlay from '@/components/shared/ReservationOverlay';
 import GatewayExperience from '@/components/motion/GatewayExperience';
+import RouteScrollReset from '@/components/layout/RouteScrollReset';
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -27,6 +28,7 @@ export default async function LocaleLayout({
 
   return (
     <UIProvider>
+      <RouteScrollReset />
       <GatewayExperience locale={locale as Locale} />
       <SiteHeader locale={locale as Locale} />
       <main id="main-content" className="flex-1 bg-[var(--background)] min-h-screen">

@@ -8,6 +8,7 @@ import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import { useUI } from '@/components/shared/UIContext';
+import { homeAssets } from '@/content/media/homeAssets';
 
 export default function Hero({ locale }: { locale: Locale }) {
   const { t } = getDictionary(locale);
@@ -27,12 +28,12 @@ export default function Hero({ locale }: { locale: Locale }) {
           transition={{ duration: 2.5, ease: 'easeOut' }}
         >
           <Image
-            src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&q=80"
-            alt="GEMA Restaurant Interior"
+            src={homeAssets.hero.src}
+            alt={homeAssets.hero.alt}
             fill
             priority
             sizes="100vw"
-            className="object-cover brightness-[0.6] sepia-[0.1]"
+            className="object-cover object-center brightness-[0.6] sepia-[0.1]"
           />
         </motion.div>
       </div>

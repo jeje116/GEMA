@@ -102,27 +102,17 @@ export default function VisitPreview({ locale }: { locale: Locale }) {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1 }}
-            className="w-full h-[400px] lg:h-[600px] bg-[var(--ivory-200)] flex items-center justify-center p-8"
+            className="w-full h-[400px] lg:h-[600px] bg-[var(--ivory-200)] p-4 sm:p-6 flex flex-col"
           >
-            <div className="w-full h-full border border-[var(--muted)]/20 relative flex items-center justify-center bg-[var(--ivory-100)]">
-              <div className="absolute inset-0 opacity-10">
-                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1"/>
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#grid)" />
-                </svg>
-              </div>
-              
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full bg-[var(--ink)]/5 flex items-center justify-center mb-4">
-                  <div className="w-4 h-4 rounded-full bg-[var(--terracotta)] animate-pulse" />
-                </div>
-                <p className="font-serif text-xl text-[var(--espresso-900)]">Surabaya</p>
-                <p className="font-condensed uppercase tracking-widest text-[var(--muted)] text-xs mt-2">Jawa Timur</p>
-              </div>
+            <div className="w-full h-full relative border border-[var(--ivory-200)] bg-[var(--ivory-100)] overflow-hidden shadow-sm">
+              <iframe
+                title="Google Maps Location for Gema Restaurant & Societiet"
+                src="https://maps.google.com/maps?q=Gema+Restaurant+Societiet+Jl+Musi+32+Surabaya&z=16&output=embed"
+                className="w-full h-full border-0"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             </div>
           </motion.div>
         </div>

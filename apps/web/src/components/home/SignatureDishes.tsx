@@ -8,6 +8,7 @@ import { Locale } from '@/i18n/config';
 import { getDictionary, l } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import { menuItems } from '@/content/fixtures/menu';
+import { homeAssets } from '@/content/media/homeAssets';
 
 export default function SignatureDishes({ locale }: { locale: Locale }) {
   const { t } = getDictionary(locale);
@@ -15,12 +16,22 @@ export default function SignatureDishes({ locale }: { locale: Locale }) {
   const signatures = menuItems.filter((item) => item.signature).slice(0, 4);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Authentic asset map for verified signature dishes; unverified slots remain on fallback
+  const authenticSignatureImages: Record<string, string> = {
+    'woodfire-carne-1': homeAssets.signatures.steak.src, // Toploin Kiwami Eye Fillet MB9+
+    'dolci-1': homeAssets.signatures.tiramisu.src, // Classic Tiramisu
+  };
+
   const demoImages = [
     'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1571877227200-a08c852cee34?auto=format&fit=crop&q=80',
   ];
+
+  const getDishImage = (dish: (typeof signatures)[number], index: number) => {
+    return dish.image || authenticSignatureImages[dish.id] || demoImages[index];
+  };
 
   const next = () => setCurrentIndex((prev) => (prev + 1) % signatures.length);
   const prev = () => setCurrentIndex((prev) => (prev - 1 + signatures.length) % signatures.length);
@@ -69,11 +80,11 @@ export default function SignatureDishes({ locale }: { locale: Locale }) {
                 className="absolute inset-0"
               >
                 <Image
-                  src={signatures[currentIndex].image || demoImages[currentIndex]} 
+                  src={getDishImage(signatures[currentIndex], currentIndex)} 
                   alt={signatures[currentIndex].name}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
+                  className="object-cover object-center"
                 />
               </motion.div>
             </AnimatePresence>

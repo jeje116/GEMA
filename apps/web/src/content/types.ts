@@ -10,8 +10,14 @@ export interface MenuItem {
   slug: string;
   name: string;
   categoryId: string;
-  description: LocalizedText;
+  description?: LocalizedText;
   priceLabel: string;
+  portion?: string;
+  priceVariants?: { portion?: string; label?: string; priceLabel: string }[];
+  subhead?: LocalizedText;
+  subheadNote?: LocalizedText;
+  additionalNotes?: string[];
+  isIntroBlock?: boolean;
   image?: string;
   dietaryNotes?: string[];
   featured?: boolean;
@@ -23,7 +29,10 @@ export interface MenuCategory {
   id: string;
   name: LocalizedText;
   order: number;
+  menuType?: 'food' | 'beverage';
+  sectionNote?: LocalizedText;
 }
+
 
 export interface Event {
   id: string;

@@ -7,29 +7,18 @@ import Image from 'next/image';
 import { Locale } from '@/i18n/config';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import { cn } from '@/lib/utils';
-
-const categories = [
-  { id: 'fresh-pasta', key: 'Fresh Pasta', img: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80' },
-  { id: 'pizza', key: 'Pizza', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80' },
-  { id: 'carne-grill', key: 'Carne / Grill', img: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80' },
-  { id: 'dessert', key: 'Dessert', img: 'https://images.unsplash.com/photo-1571877227200-a08c852cee34?auto=format&fit=crop&q=80' }
-];
+import { homeAssets } from '@/content/media/homeAssets';
 
 export default function CuisineCategories({ locale }: { locale: Locale }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const prefersReduced = useReducedMotionSafe();
+  const categories = homeAssets.cuisineTeaser;
 
-  const getCatName = (id: string) => {
-    if (locale === 'id') {
-      const map: Record<string, string> = {
-        'fresh-pasta': 'Pasta Segar',
-        'pizza': 'Pizza',
-        'carne-grill': 'Daging / Panggangan',
-        'dessert': 'Pencuci Mulut'
-      };
-      return map[id] || id;
+  const getCatName = (cat: (typeof categories)[number]) => {
+    if (locale === 'id' && cat.name.id) {
+      return cat.name.id;
     }
-    return categories.find(c => c.id === id)?.key || id;
+    return cat.name.en || cat.key;
   };
 
   return (
@@ -47,10 +36,10 @@ export default function CuisineCategories({ locale }: { locale: Locale }) {
           >
             <Image 
               src={categories[activeIndex].img} 
-              alt={categories[activeIndex].key}
+              alt={categories[activeIndex].alt}
               fill
               sizes="100vw"
-              className="object-cover"
+              className={cn('object-cover', categories[activeIndex].objectPosition || 'object-center')}
             />
           </motion.div>
         </AnimatePresence>
@@ -80,7 +69,7 @@ export default function CuisineCategories({ locale }: { locale: Locale }) {
                   'font-serif text-4xl md:text-6xl transition-transform duration-300 ease-out',
                   activeIndex === index ? 'translate-x-4 md:translate-x-8' : 'translate-x-0'
                 )}>
-                  {getCatName(cat.id)}
+                  {getCatName(cat)}
                 </h3>
               </motion.div>
             </button>

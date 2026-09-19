@@ -28,8 +28,8 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
       <div ref={heroRef} className="relative h-screen min-h-[600px] w-full flex items-center justify-center overflow-hidden">
         <motion.div style={{ y: prefersReduced ? 0 : yImage }} className="absolute inset-0 w-full h-[120%] -top-[10%] z-0">
           <ResponsiveImage 
-            src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80" 
-            alt="GEMA Interior"
+            src="/media/experience/experience-hero.jpg" 
+            alt="GEMA dining room and garden terrace"
             className="w-full h-full"
             imgClassName="brightness-[0.7]"
             priority
@@ -79,7 +79,7 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
                 viewport={{ once: true, margin: "-10%" }}
               >
                 <div className="aspect-[4/5] mb-6">
-                  <ResponsiveImage src="https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&q=80" alt="Daytime dining" />
+                  <ResponsiveImage src="/media/experience/experience-day-morning.jpg" alt="Morning dining table at GEMA" />
                 </div>
                 <h3 className="font-serif text-2xl text-[var(--espresso-900)] mb-2">Morning Light</h3>
                 <p className="text-[var(--muted)] text-sm">Sunlight streams through the tall windows, warming the ivory walls and bringing out the rich textures of the natural wood.</p>
@@ -116,7 +116,7 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
                 viewport={{ once: true, margin: "-10%" }}
               >
                 <div className="aspect-square mb-6 w-3/4 ml-auto">
-                  <ResponsiveImage src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80" alt="Culinary details" />
+                  <ResponsiveImage src="/media/experience/experience-culinary-details.jpg" alt="GEMA branded tableware and hospitality details" />
                 </div>
               </motion.div>
             </div>

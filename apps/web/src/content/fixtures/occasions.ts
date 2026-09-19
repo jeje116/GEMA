@@ -8,7 +8,7 @@ export const occasionCategories: PrivateEventCategory[] = [
       en: 'An exclusive culinary journey tailored for intimate gatherings, business dinners, or family celebrations. Enjoy a secluded space with dedicated service and bespoke menus.', 
       id: 'Perjalanan kuliner eksklusif yang dirancang untuk pertemuan intim, makan malam bisnis, atau perayaan keluarga. Nikmati ruang tersembunyi dengan layanan khusus dan menu yang disesuaikan.' 
     },
-    image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80',
+    image: '/media/occasions/occasions-private-dining.jpg',
     features: [
       { en: 'Customizable tasting menus', id: 'Menu tasting yang dapat disesuaikan' },
       { en: 'Dedicated sommelier', id: 'Sommelier khusus' },

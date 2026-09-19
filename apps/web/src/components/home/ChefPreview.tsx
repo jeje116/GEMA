@@ -26,7 +26,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
   });
   const saturation = useTransform(scrollYProgress, [0.3, 0.6], ['grayscale(100%)', 'grayscale(0%)']);
 
-  // Native IntersectionObserver with hysteresis for Chef media active state and audio ducking
+  // Native IntersectionObserver with hysteresis for Chef media active state and audio ownership
   useEffect(() => {
     const el = mediaRef.current;
     if (!el) return;
@@ -37,15 +37,15 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
         if (!entry) return;
         const ratio = entry.intersectionRatio;
 
-        // Enter threshold: >= 45% visible -> Chef active (duck audio, play video if present)
+        // Enter threshold: >= 45% visible -> Chef active (suppress ambience, play Chef video with audio)
         if (ratio >= 0.45) {
           setIsChefActive(true);
-          audioManager.setDucked(true);
+          audioManager.handleChefEnter();
         }
-        // Exit threshold: < 22% visible -> Chef inactive (restore audio if user intent enabled, pause video)
+        // Exit threshold: < 22% visible -> Chef inactive (pause video, restore ambience if previously active)
         else if (ratio < 0.22) {
           setIsChefActive(false);
-          audioManager.setDucked(false);
+          audioManager.handleChefExit();
         }
         // Between 0.22 and 0.45: hysteresis zone, preserves current state
       },
@@ -58,30 +58,40 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
 
     return () => {
       observer.disconnect();
-      audioManager.setDucked(false);
+      audioManager.handleChefExit();
     };
   }, []);
 
-  // Lifecycle control for video playback when active in viewport
+  // Lifecycle control for video playback & unmuted audio when active in viewport
   useEffect(() => {
-    if (homeAssets.chefVideo.src && videoRef.current) {
-      if (isChefActive) {
-        videoRef.current.play().catch(() => {
-          // Autoplay policy or format limitation handled safely
-        });
-      } else {
-        videoRef.current.pause();
-      }
+    if (!homeAssets.chefVideo.src || !videoRef.current) return;
+    const video = videoRef.current;
+
+    if (isChefActive) {
+      // RULE 1 & 4: Whenever Chef media is ACTIVE, Chef video MUST play UNMUTED with audible volume (1.0),
+      // regardless of whether ambient backsound was ON or OFF.
+      video.muted = false;
+      video.volume = 1.0;
+      video.play().catch((err) => {
+        // Catch browser autoplay policy rejection if no prior user interaction
+        console.warn('Chef video unmuted autoplay policy rejection:', err);
+        video.muted = true;
+        video.play().catch(() => {});
+      });
+    } else {
+      // RULE 2: Whenever Chef media is INACTIVE, pause and mute
+      video.pause();
+      video.muted = true;
     }
   }, [isChefActive]);
 
   return (
     <section ref={containerRef} className="bg-[var(--ink)] text-white relative lg:h-[150vh]">
-      {/* SVG ClipPath Definition — Approved Widened Blob (normalized to objectBoundingBox) */}
+      {/* SVG ClipPath Definition — Widened (~25%) & Vertically Centered Organic Blob */}
       <svg className="w-0 h-0 absolute pointer-events-none" aria-hidden="true" focusable="false">
         <defs>
           <clipPath id="chef-blob-shape2" clipPathUnits="objectBoundingBox">
-            <path d="M 0.7725,0.2105 C 0.8615,0.265 0.948,0.3165 0.9595,0.3785 C 0.9705,0.4405 0.907,0.5125 0.8715,0.5905 C 0.8365,0.669 0.8305,0.7535 0.773,0.794 C 0.716,0.835 0.608,0.8315 0.5105,0.82 C 0.4135,0.809 0.327,0.7895 0.2765,0.7475 C 0.225,0.7055 0.2085,0.6405 0.2175,0.587 C 0.227,0.5335 0.261,0.4915 0.265,0.4295 C 0.269,0.3675 0.242,0.2855 0.2765,0.2175 C 0.3105,0.1495 0.405,0.0955 0.4985,0.097 C 0.5915,0.0985 0.6835,0.1555 0.7725,0.2105 Z" />
+            <path d="M 0.7325,0.2455 C 0.843,0.3 0.95,0.3515 0.9645,0.4135 C 0.978,0.4755 0.8995,0.5475 0.8555,0.6255 C 0.812,0.704 0.8045,0.7885 0.733,0.829 C 0.6625,0.87 0.5285,0.8665 0.4075,0.855 C 0.2875,0.844 0.18,0.8245 0.1175,0.7825 C 0.0535,0.7405 0.033,0.6755 0.0445,0.622 C 0.056,0.5685 0.098,0.5265 0.103,0.4645 C 0.108,0.4025 0.0745,0.3205 0.1175,0.2525 C 0.1595,0.1845 0.277,0.1305 0.3925,0.132 C 0.508,0.1335 0.622,0.1905 0.7325,0.2455 Z" />
           </clipPath>
         </defs>
       </svg>
@@ -115,14 +125,21 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
               </motion.div>
             </div>
 
-            {/* Right Media Column: Widened Blob — Portrait 9:16 */}
-            <div className="order-1 lg:order-2 w-full max-w-lg mx-auto">
+            {/* Right Media Column: Widened Blob (~25% wider, vertically centered) — Portrait 9:16 */}
+            <div className="order-1 lg:order-2 w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[430px] max-h-[82vh] mx-auto flex items-center justify-center">
               <motion.div
                 ref={mediaRef}
                 style={prefersReduced ? {} : { filter: saturation }}
-                className="w-full relative aspect-[9/16] flex items-center justify-center p-3 sm:p-4"
+                className="w-full relative aspect-[9/16] flex items-center justify-center p-3 sm:p-4 my-auto cursor-pointer"
+                onClick={() => {
+                  const video = videoRef.current;
+                  if (video && video.muted) {
+                    video.muted = false;
+                    video.volume = 1.0;
+                  }
+                }}
               >
-                {/* Decorative Outline — uses original 200×200 path for exact geometry match */}
+                {/* Decorative Outline — matches widened shape exactly in 200×200 viewBox */}
                 <svg
                   aria-hidden="true"
                   className="absolute -inset-3 sm:-inset-4 w-[calc(100%+24px)] sm:w-[calc(100%+32px)] h-[calc(100%+24px)] sm:h-[calc(100%+32px)] pointer-events-none"
@@ -130,7 +147,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                   preserveAspectRatio="none"
                 >
                   <path
-                    d="M54.5,-57.9C72.3,-47,89.6,-36.7,91.9,-24.3C94.1,-11.9,81.4,2.5,74.3,18.1C67.3,33.8,66.1,50.7,54.6,58.8C43.2,67,21.6,66.3,2.1,64C-17.3,61.8,-34.6,57.9,-44.7,49.5C-55,41.1,-58.3,28.1,-56.5,17.4C-54.6,6.7,-47.8,-1.7,-47,-14.1C-46.2,-26.5,-51.6,-42.9,-44.7,-56.5C-37.9,-70.1,-19,-80.9,-0.3,-80.6C18.3,-80.3,36.7,-68.9,54.5,-57.9Z"
+                    d="M46.5,-50.9C68.6,-40.0,90.0,-29.7,92.9,-17.3C95.6,-4.9,79.9,9.5,71.1,25.1C62.4,40.8,60.9,57.7,46.6,65.8C32.5,74.0,5.7,73.3,-18.5,71.0C-42.5,68.8,-64.0,64.9,-76.5,56.5C-89.3,48.1,-93.4,35.1,-91.1,24.4C-88.8,13.7,-80.4,5.3,-79.4,-7.1C-78.4,-19.5,-85.1,-35.9,-76.5,-49.5C-68.1,-63.1,-44.6,-73.9,-21.5,-73.6C1.6,-73.3,24.4,-61.9,46.5,-50.9Z"
                     transform="translate(100 100)"
                     fill="none"
                     stroke="var(--terracotta)"
@@ -141,7 +158,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                   />
                 </svg>
 
-                {/* Portrait Media Container with Blobmaker Shape #2 ClipPath */}
+                {/* Portrait Media Container with Widened Blob ClipPath */}
                 <div 
                   className="w-full h-full relative overflow-hidden bg-[#1a1310] shadow-2xl"
                   style={{ clipPath: 'url(#chef-blob-shape2)' }}
@@ -152,7 +169,6 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                         ref={videoRef}
                         src={homeAssets.chefVideo.src}
                         poster={homeAssets.chefVideo.poster}
-                        muted
                         playsInline
                         loop
                         preload="metadata"

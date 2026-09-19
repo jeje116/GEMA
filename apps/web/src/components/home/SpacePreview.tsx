@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
+import { homeAssets } from '@/content/media/homeAssets';
 
 export default function SpacePreview({ locale }: { locale: Locale }) {
   const { t } = getDictionary(locale);
@@ -52,20 +53,20 @@ export default function SpacePreview({ locale }: { locale: Locale }) {
           <div className="md:col-span-7 md:col-start-6 order-1 md:order-2 grid grid-cols-2 gap-4">
             <div className="mt-12 md:mt-24 relative aspect-[3/4] overflow-hidden">
               <Image 
-                src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&q=80" 
-                alt="Indoor dining"
+                src={homeAssets.experience.indoor.src} 
+                alt={homeAssets.experience.indoor.alt}
                 fill
                 sizes="(max-width: 768px) 50vw, 30vw"
-                className="object-cover"
+                className="object-cover object-center"
               />
             </div>
             <div className="relative aspect-[3/4] overflow-hidden">
               <Image 
-                src="https://images.unsplash.com/photo-1525640788966-69bdb028aa73?auto=format&fit=crop&q=80" 
-                alt="Outdoor greenery"
+                src={homeAssets.experience.patio.src} 
+                alt={homeAssets.experience.patio.alt}
                 fill
                 sizes="(max-width: 768px) 50vw, 30vw"
-                className="object-cover"
+                className="object-cover object-center"
               />
             </div>
           </div>

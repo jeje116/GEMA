@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
@@ -13,7 +13,6 @@ import { audioManager } from '@/lib/audioManager';
 export default function AudioControl({ locale }: { locale: Locale }) {
   const [show, setShow] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [toastVisible, setToastVisible] = useState(false);
   const { t } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
   const { isGatewayEntered } = useUI();
@@ -37,30 +36,13 @@ export default function AudioControl({ locale }: { locale: Locale }) {
   }, [isGatewayEntered]);
 
   const toggleAudio = () => {
-    const willPlay = !isPlaying;
     audioManager.toggle();
-    if (willPlay) {
-      setToastVisible(true);
-      setTimeout(() => setToastVisible(false), 3000);
-    }
   };
 
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40 flex flex-col items-end gap-2">
-      <AnimatePresence>
-        {toastVisible && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="bg-[var(--ink)] text-white text-xs px-3 py-1.5 rounded-sm font-condensed tracking-wide shadow-md"
-          >
-            {t('audio.toast')}
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40">
 
       <div className="relative">
         <motion.button

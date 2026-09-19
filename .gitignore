@@ -35,3 +35,9 @@ drive-download-*/
 # Root master/source media files (canonical copies live in apps/web/public/media/)
 /GEMA_brand.png
 /stillness-in-the-atrium_GEMA.mp3
+
+# Agent planning / internal workflow
+.agents/
+
+# PDF source/reference files
+*.pdf

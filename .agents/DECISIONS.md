@@ -1,4 +1,4 @@
-﻿# GEMA — Decisions
+# GEMA — Decisions
 
 This file contains APPROVED and LOCKED project decisions.
 
@@ -77,6 +77,50 @@ When multiple implementations satisfy the approved requirement, prefer the appro
 - adequate maintainability.
 
 Do not optimize prematurely for hypothetical scale.
+
+
+---
+
+# ADR-004 — Official Menu Authority & Editorial Normalization Policy
+
+Status:
+
+LOCKED
+
+Decision:
+
+PDF source documents are authoritative for menu substance, items, categories, pricing, portions, and variants.
+
+Obvious source-document typographical errors may be normalized for public website copy without changing meaning (e.g., Stracciatella, Pomodorini, Basilico Verde, Chantilly, focaccia, government).
+
+Implications:
+
+- Meaning, pricing, and ingredient identity must remain unchanged.
+- Transcription errors introduced during integration must be corrected to match authoritative source (e.g., Patatine).
+- Intended source diacritics should be preserved (e.g., Ragù di Manzo, Béchamel).
+- PDF icons without verified semantic legend remain unmapped.
+
+
+---
+
+# ADR-005 — Menu Authentic Media Policy
+
+Status:
+
+LOCKED
+
+Decision:
+
+The Menu page uses photography only for orientation and atmosphere, not as a dish-by-dish catalog.
+
+Implications:
+
+- Keep the menu page text-first, editorial, scan-friendly, fast, and functional.
+- Do not add photography to every dish or every category.
+- Use exactly ONE contextual editorial media panel near the top that updates according to active menu mode (Food overview: FNR03012.jpg table spread / Beverage craft: QAR04031.jpg cocktail preparation).
+- Media panel must not be sticky and must scroll away naturally.
+- Switching between Food and Beverage uses a subtle opacity crossfade (250-400ms) with zero parallax or dramatic zoom.
+- Do not identify general overview assets as specific named menu items or cocktails.
 
 
 ---

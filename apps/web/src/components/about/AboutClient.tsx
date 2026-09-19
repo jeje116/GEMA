@@ -49,8 +49,8 @@ export default function AboutClient({ locale }: AboutClientProps) {
           </motion.div>
           <div className="order-1 md:order-2 aspect-[4/5]">
             <ResponsiveImage 
-              src="https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&q=80" 
-              alt="Restaurant details"
+              src="/media/about/about-origin.jpg" 
+              alt="GEMA branded tableware detail"
               maskReveal
               priority
             />
@@ -61,8 +61,8 @@ export default function AboutClient({ locale }: AboutClientProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 items-center mb-32">
           <div className="aspect-square">
             <ResponsiveImage 
-              src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80" 
-              alt="Culinary philosophy"
+              src="/media/about/about-philosophy.jpg" 
+              alt="Culinary spices and aromatics"
               maskReveal
             />
           </div>
@@ -99,8 +99,8 @@ export default function AboutClient({ locale }: AboutClientProps) {
           </motion.div>
           <div className="order-1 md:order-2 aspect-[3/4]">
             <ResponsiveImage 
-              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80" 
-              alt="GEMA Architecture"
+              src="/media/about/about-architecture.jpg" 
+              alt="GEMA interior architecture"
             />
           </div>
         </div>

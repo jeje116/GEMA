@@ -447,6 +447,9 @@ Do not claim:
 
 without corresponding evidence.
 
+BROWSER-DEPENDENT ACCEPTANCE CRITERIA REQUIRE BROWSER EVIDENCE.
+If browser tooling is unavailable or fails (e.g. CDP/protocol errors), browser-dependent items must be marked NOT VERIFIED and must never be marked PASS. Build, typecheck, or unit test passes do not substitute for browser verification.
+
 Use:
 
 OBSERVED

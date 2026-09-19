@@ -15,7 +15,7 @@ type AudioListener = (state: AudioState) => void;
 class AudioManager {
   private audio: HTMLAudioElement | null = null;
   private userIntent: UserAudioIntent = 'disabled';
-  private attenuation: AttenuationState = 'normal';
+  private isChefActive: boolean = false;
   private listeners: Set<AudioListener> = new Set();
   
   // Volume targets
@@ -48,7 +48,7 @@ class AudioManager {
     if (!this.audio) {
       this.audio = new Audio('/media/audio/stillness-in-the-atrium-gema.mp3');
       this.audio.loop = true;
-      this.audio.volume = this.attenuation === 'ducked' ? this.duckedVolume : this.normalVolume;
+      this.audio.volume = this.normalVolume;
       this.audio.preload = 'auto';
 
       const updateEvents = ['play', 'playing', 'pause', 'waiting', 'canplay', 'ended', 'volumechange'];
@@ -64,56 +64,6 @@ class AudioManager {
   }
 
   /**
-   * Smoothly transitions audio volume to the target over fadeDurationMs
-   */
-  private rampVolume(targetVolume: number): void {
-    const audio = this.getOrCreateAudio();
-    if (!audio) return;
-
-    if (this.fadeTimer !== null) {
-      window.clearInterval(this.fadeTimer);
-      this.fadeTimer = null;
-    }
-
-    const startVolume = audio.volume;
-    const volumeDelta = targetVolume - startVolume;
-    if (Math.abs(volumeDelta) < 0.01) {
-      audio.volume = targetVolume;
-      this.notify();
-      return;
-    }
-
-    const stepIntervalMs = 25;
-    const totalSteps = Math.max(1, Math.floor(this.fadeDurationMs / stepIntervalMs));
-    let currentStep = 0;
-
-    this.fadeTimer = window.setInterval(() => {
-      currentStep++;
-      const progress = Math.min(1, currentStep / totalSteps);
-      // Ease out cubic
-      const ease = 1 - Math.pow(1 - progress, 3);
-      const newVol = Math.max(0, Math.min(1, startVolume + volumeDelta * ease));
-      
-      if (this.audio) {
-        this.audio.volume = newVol;
-      }
-
-      if (progress >= 1) {
-        if (this.fadeTimer !== null) {
-          window.clearInterval(this.fadeTimer);
-          this.fadeTimer = null;
-        }
-        if (this.audio) {
-          this.audio.volume = targetVolume;
-        }
-        this.notify();
-      }
-    }, stepIntervalMs);
-  }
-
-  private fadeTimer: number | null = null;
-
-  /**
    * User explicitly enables or starts audio (e.g. Gateway enter gesture or audio toggle ON)
    */
   public async startFromUserGesture(): Promise<boolean> {
@@ -125,11 +75,16 @@ class AudioManager {
       // Ignore
     }
 
+    // If Chef video is currently active, store intent as 'enabled' but keep ambient suppressed
+    if (this.isChefActive) {
+      this.notify();
+      return true;
+    }
+
     const audio = this.getOrCreateAudio();
     if (!audio) return false;
 
-    const targetVol = this.attenuation === 'ducked' ? this.duckedVolume : this.normalVolume;
-    audio.volume = targetVol;
+    audio.volume = this.normalVolume;
 
     try {
       await audio.play();
@@ -144,65 +99,86 @@ class AudioManager {
   }
 
   /**
-   * User toggles playback button
+   * User toggles playback button (affects ambient backsound only)
    */
   public toggle(): boolean {
     this.initClientState();
-    const currentState = this.getState();
-    if (currentState.isPlaying) {
-      // Actual audio is playing → user requests mute / disable
+    if (this.userIntent === 'enabled') {
+      // User requests mute / disable ambient
       this.userIntent = 'disabled';
       try {
         sessionStorage.setItem('gemaAudioPref', 'false');
       } catch {
         // Ignore
       }
-      if (this.audio) {
+      if (this.audio && !this.audio.paused) {
         this.audio.pause();
       }
       this.notify();
       return false;
     } else {
-      // Audio is not playing → user requests play / enable
+      // User requests enable ambient
       this.startFromUserGesture();
       return true;
     }
   }
 
   /**
-   * System ducking: ducks or restores volume smoothly
-   * CRITICAL INVARIANT: NEVER overwrites or reactivates disabled userIntent!
+   * Called when Chef video becomes active in viewport.
+   * Completely pauses background ambience so Chef video audio is heard cleanly.
+   * Ambient userIntent is strictly preserved and not overwritten.
    */
-  public setDucked(ducked: boolean): void {
-    const newAttenuation: AttenuationState = ducked ? 'ducked' : 'normal';
-    if (this.attenuation === newAttenuation) return;
-
-    this.attenuation = newAttenuation;
-
-    // If audio is disabled by user intent, do NOT play or resume
-    if (this.userIntent === 'disabled') {
-      // Keep state tracked, but don't play
-      this.notify();
-      return;
+  public handleChefEnter(): void {
+    this.initClientState();
+    this.isChefActive = true;
+    if (this.audio && !this.audio.paused) {
+      this.audio.pause();
     }
+    this.notify();
+  }
 
-    // User intent is enabled; if audio is playing, smoothly ramp volume
-    const targetVol = ducked ? this.duckedVolume : this.normalVolume;
-    this.rampVolume(targetVol);
+  /**
+   * Called when Chef video leaves active viewport.
+   * Restores background ambience according to user's intent.
+   */
+  public handleChefExit(): void {
+    this.initClientState();
+    this.isChefActive = false;
+    if (this.userIntent === 'enabled' && this.audio) {
+      this.audio.volume = this.normalVolume;
+      this.audio.play().catch((err) => {
+        console.warn('Failed to restore ambience audio:', err);
+      });
+    }
+    this.notify();
+  }
+
+  public setDucked(ducked: boolean): void {
+    if (ducked) {
+      this.handleChefEnter();
+    } else {
+      this.handleChefExit();
+    }
+  }
+
+  public isSoundtrackPlaying(): boolean {
+    return Boolean(this.audio && !this.audio.paused && !this.audio.ended);
+  }
+
+  public isChefVideoActive(): boolean {
+    return this.isChefActive;
+  }
+
+  public getUserIntent(): UserAudioIntent {
+    return this.userIntent;
   }
 
   public getState(): AudioState {
     this.initClientState();
-    const isPlaying = Boolean(
-      this.userIntent === 'enabled' &&
-      this.audio &&
-      !this.audio.paused &&
-      !this.audio.ended
-    );
     return {
-      isPlaying,
+      isPlaying: this.userIntent === 'enabled',
       userIntent: this.userIntent,
-      attenuation: this.attenuation,
+      attenuation: this.isChefActive ? 'ducked' : 'normal',
       volume: this.audio ? this.audio.volume : this.normalVolume,
     };
   }
@@ -223,3 +199,8 @@ class AudioManager {
 
 // Module-level singleton preserved across Next.js internal page & locale navigations
 export const audioManager = new AudioManager();
+
+if (typeof window !== 'undefined') {
+  (window as unknown as { audioManager: AudioManager }).audioManager = audioManager;
+}
+

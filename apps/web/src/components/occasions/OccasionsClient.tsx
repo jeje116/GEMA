@@ -27,10 +27,10 @@ export default function OccasionsClient({ locale, categories, brandEvents }: Occ
       {/* Hero Section */}
       <div className="w-full h-[60vh] md:h-[70vh] relative">
         <ResponsiveImage 
-          src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80" 
+          src="/media/occasions/occasions-hero.jpg" 
           alt="GEMA Occasions"
           className="w-full h-full"
-          imgClassName="brightness-[0.7]"
+          imgClassName="brightness-[0.7] object-[center_40%]"
           priority
         />
         <div className="absolute inset-0 flex items-center justify-center text-center p-6">

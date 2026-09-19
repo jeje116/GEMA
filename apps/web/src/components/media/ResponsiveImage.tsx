@@ -28,6 +28,13 @@ export default function ResponsiveImage({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const prefersReduced = useReducedMotionSafe();
+  const imgRef = React.useRef<HTMLImageElement>(null);
+
+  React.useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setLoaded(true);
+    }
+  }, [src]);
 
   const aspectClasses = {
     'video': 'aspect-video',
@@ -62,6 +69,7 @@ export default function ResponsiveImage({
       {/* The Image */}
       {!error && (
         <motion.img
+          ref={imgRef}
           src={src}
           alt={alt}
           loading={priority ? 'eager' : 'lazy'}

@@ -19,7 +19,7 @@ export default function ChefClient() {
           <div className="lg:col-span-5 relative">
             <div className="lg:sticky lg:top-32 w-full aspect-[3/4] overflow-hidden">
               <ResponsiveImage 
-                src="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&q=80" 
+                src="/media/chef/chef-mandif-warokka.jpg" 
                 alt="Chef Mandif Warokka"
                 className="w-full h-full"
                 imgClassName="grayscale hover:grayscale-0 transition-all duration-1000"

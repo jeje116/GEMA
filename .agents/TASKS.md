@@ -46,6 +46,12 @@ Status values:
 | GEMA-022 | Occasions Implementation Status Check & Closeout | DONE | .agents/plans/GEMA-020A-occasions-authentic-media-implementation.md | Verified GEMA-020A authentic media active (Hero: QAR03928, Private Dinings: FNR06860), 5 slots preserved, Desktop + Mobile browser QA verified |
 | GEMA-023 | Diagnose Next.js 1 Issue Before Netlify Deployment | DONE | N/A | Diagnosed Next.js development overlay '1 Issue' (hydration mismatch on <html> caused by browser extension attribute injection); applied suppressHydrationWarning to <html>; 0 issues across all routes |
 | GEMA-023A | Remove Unnecessary Root Hydration Suppression | DONE | N/A | Removed suppressHydrationWarning from root <html> in layout.tsx; confirmed 0 issues across all 7 routes in clean browser environment; confirmed extension interference reproduces only when external extension active |
+| GEMA-024 | CMS Content Architecture Audit | DONE | N/A | Completed comprehensive planning audit classifying content ownership, Payload models, frozen visual design boundaries, and 7-phase migration roadmap |
+| GEMA-024B | Complete Public Route / Branch Page Media Audit | DONE | N/A | Audited all 45 public routes/branches; identified missing authentic asset on Chef Mandif biography page |
+| GEMA-024C | Chef Mandif Authentic Media Replacement | DONE | N/A | Replaced stock headphone image with authentic Chef Mandif video still (/media/chef/chef-mandif-warokka.jpg) |
+| GEMA-024D | Final Exhaustive Public Route Verification | DONE | N/A | Quadruple cross-checked routes via filesystem, links, sitemap, and localized paths; confirmed 100% route completeness |
+| GEMA-024E | Diagnose & Fix Chef Page 1 Issue | DONE | N/A | Diagnosed Next.js development overlay 1 Issue; confirmed external browser extension attribute injection; 0 issues in clean browser |
+| GEMA-025 | Isolated Payload CMS + PostgreSQL Scaffold (Phase 1) | DONE | .agents/plans/GEMA-025-isolated-payload-cms-scaffold.md | Phase 1 scaffold in apps/cms verified: PostgreSQL, Users auth, role access policies, Media upload & sharp thumbnails, EN/ID localization, Admin UI, REST API, zero apps/web regressions |
 
 Rules:
 

@@ -6,12 +6,28 @@ import Link from 'next/link';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
-import { recognitions } from '@/content/fixtures/recognition';
+import { RecognitionItem } from '@/content/types';
 import { cn } from '@/lib/utils';
 
-export default function RecognitionPreview({ locale }: { locale: Locale }) {
+interface RecognitionPreviewProps {
+  locale: Locale;
+  recognitions?: RecognitionItem[];
+  recognitionData?: {
+    title?: string;
+    ctaLabel?: string;
+  };
+}
+
+export default function RecognitionPreview({ locale, recognitions = [], recognitionData }: RecognitionPreviewProps) {
   const { t, l } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
+
+  if (!recognitions || recognitions.length === 0) {
+    return null;
+  }
+
+  const title = recognitionData?.title || t('home.recognition.title');
+  const ctaLabel = recognitionData?.ctaLabel || t('home.recognition.cta');
 
   const demoRecs = recognitions.slice(0, 3);
 
@@ -21,7 +37,7 @@ export default function RecognitionPreview({ locale }: { locale: Locale }) {
         {/* Minimal Editorial Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 mb-12 md:mb-16">
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl text-[var(--espresso-900)] leading-tight">
-            {t('home.recognition.title')}
+            {title}
           </h2>
 
           {/* View Archive CTA */}
@@ -29,9 +45,9 @@ export default function RecognitionPreview({ locale }: { locale: Locale }) {
             <Link
               href={`/${locale}/recognition`}
               className="group inline-flex items-center gap-2 font-condensed uppercase tracking-widest text-xs text-[var(--muted)] hover:text-[var(--terracotta)] focus-visible:text-[var(--terracotta)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] transition-colors pb-1 border-b border-[var(--ivory-200)] hover:border-[var(--terracotta)] focus-visible:border-[var(--terracotta)]"
-              aria-label={t('home.recognition.cta')}
+              aria-label={ctaLabel}
             >
-              <span>{t('home.recognition.cta')}</span>
+              <span>{ctaLabel}</span>
               <svg
                 width="14"
                 height="14"

@@ -9,10 +9,17 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { useUI } from '@/components/shared/UIContext';
-import { siteData } from '@/content/fixtures/site';
 import { cn } from '@/lib/utils';
+import { NavLink } from '@/content/provider';
+import { SiteData } from '@/content/types';
 
-export default function SiteHeader({ locale }: { locale: Locale }) {
+interface SiteHeaderProps {
+  locale: Locale;
+  headerLinks?: NavLink[];
+  siteData?: SiteData;
+}
+
+export default function SiteHeader({ locale, headerLinks, siteData }: SiteHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -45,14 +52,19 @@ export default function SiteHeader({ locale }: { locale: Locale }) {
     router.push(newPath);
   };
 
-  const navLinks = [
-    { to: `/${locale}/menu`, label: t('nav.menu') },
-    { to: `/${locale}/experience`, label: t('nav.experience') },
-    { to: `/${locale}/events`, label: t('nav.events') },
-    { to: `/${locale}/occasions`, label: t('nav.occasions') },
-    { to: `/${locale}/about`, label: t('nav.about') },
-    { to: `/${locale}/visit`, label: t('nav.visit') }
-  ];
+  const navLinks = (headerLinks && headerLinks.length > 0)
+    ? headerLinks.map(link => ({
+        to: link.url.startsWith('/') ? `/${locale}${link.url}` : link.url,
+        label: link.label,
+      }))
+    : [
+        { to: `/${locale}/menu`, label: t('nav.menu') },
+        { to: `/${locale}/experience`, label: t('nav.experience') },
+        { to: `/${locale}/events`, label: t('nav.events') },
+        { to: `/${locale}/occasions`, label: t('nav.occasions') },
+        { to: `/${locale}/about`, label: t('nav.about') },
+        { to: `/${locale}/visit`, label: t('nav.visit') }
+      ];
 
   return (
     <>
@@ -192,8 +204,8 @@ export default function SiteHeader({ locale }: { locale: Locale }) {
               </div>
               
               <div className="flex flex-col gap-2 font-condensed tracking-wide text-sm text-[var(--muted)]">
-                <p>{siteData.fullAddress}</p>
-                <p>{siteData.phone}</p>
+                <p>{siteData?.fullAddress}</p>
+                <p>{siteData?.phone}</p>
               </div>
             </div>
           </motion.div>

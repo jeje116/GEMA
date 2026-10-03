@@ -6,18 +6,20 @@ import { motion } from 'motion/react';
 import PageReveal from '@/components/motion/PageReveal';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import { Event } from '@/content/types';
-import { getEventState } from '@/content/fixtures/events';
 import ResponsiveImage from '@/components/media/ResponsiveImage';
-import { formatDate } from '@/lib/date';
+import { formatDate, getEventState } from '@/lib/date';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
+
+import { EventsPageData } from '@/content/provider';
 
 interface EventsClientProps {
   locale: Locale;
   events: Event[];
+  eventsPageData?: EventsPageData | null;
 }
 
-export default function EventsClient({ locale, events }: EventsClientProps) {
+export default function EventsClient({ locale, events, eventsPageData }: EventsClientProps) {
   const { t, l } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
 
@@ -58,15 +60,15 @@ export default function EventsClient({ locale, events }: EventsClientProps) {
   );
 
   return (
-    <PageReveal title={t('nav.events')} className="bg-[var(--ivory-50)] min-h-screen pt-32 pb-24">
+    <PageReveal title={eventsPageData?.title || t('nav.events')} className="bg-[var(--ivory-50)] min-h-screen pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="max-w-3xl mb-24">
           <h1 className="font-serif text-5xl md:text-7xl text-[var(--espresso-900)] mb-6">
-            {t('nav.events')}
+            {eventsPageData?.title || t('nav.events')}
           </h1>
           <p className="text-[var(--muted)] text-lg">
-            {t('events.title')}
+            {eventsPageData?.subtitle || t('events.title')}
           </p>
         </div>
 

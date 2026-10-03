@@ -99,7 +99,25 @@ export const translations: Record<Locale, TranslationDictionary> = {
     '404.back': 'Return Home',
     
     'general.loading': 'Loading...',
-    'general.details.tbc': 'Details to be confirmed'
+    'general.details.tbc': 'Details to be confirmed',
+
+    'occasions.inquire': 'Inquire Now',
+
+    'visit.map.open': 'Open in Google Maps',
+    'visit.reserve': 'Reserve a Table',
+
+    'events.meta.date': 'Date',
+    'events.meta.time': 'Time',
+    'events.meta.price': 'Price',
+    'events.state.concluded': 'Event Concluded',
+    'events.cta.request': 'Request Reservation',
+
+    'journal.filter.all': 'All',
+    'journal.readStory': 'Read Story',
+    'journal.back': 'Back to Journal',
+    'journal.exploreMore': 'Explore More Stories',
+
+    'footer.nav': 'Navigation'
   },
   id: {
     'nav.menu': 'Menu',
@@ -195,6 +213,24 @@ export const translations: Record<Locale, TranslationDictionary> = {
     '404.back': 'Kembali ke Beranda',
     
     'general.loading': 'Memuat...',
-    'general.details.tbc': 'Detail akan dikonfirmasi'
+    'general.details.tbc': 'Detail akan dikonfirmasi',
+
+    'occasions.inquire': 'Ajukan Pertanyaan',
+
+    'visit.map.open': 'Buka di Google Maps',
+    'visit.reserve': 'Pesan Meja',
+
+    'events.meta.date': 'Tanggal',
+    'events.meta.time': 'Waktu',
+    'events.meta.price': 'Harga',
+    'events.state.concluded': 'Acara Telah Berakhir',
+    'events.cta.request': 'Permintaan Reservasi',
+
+    'journal.filter.all': 'Semua',
+    'journal.readStory': 'Baca Cerita',
+    'journal.back': 'Kembali ke Jurnal',
+    'journal.exploreMore': 'Jelajahi Cerita Lainnya',
+
+    'footer.nav': 'Navigasi'
   }
 };

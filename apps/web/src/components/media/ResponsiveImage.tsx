@@ -44,6 +44,14 @@ export default function ResponsiveImage({
     'auto': ''
   };
 
+  const hasValidSrc = Boolean(src && src.trim().length > 0);
+
+  React.useEffect(() => {
+    if (!hasValidSrc && process.env.NODE_ENV !== 'production') {
+      console.error(`[ResponsiveImage Error] Empty or missing image src for alt: "${alt}"`);
+    }
+  }, [hasValidSrc, alt]);
+
   return (
     <div className={cn("relative overflow-hidden bg-[var(--ivory-200)]", aspectClasses[aspectRatio], className)}>
       {/* Mask Reveal */}
@@ -57,9 +65,9 @@ export default function ResponsiveImage({
         />
       )}
 
-      {/* Fallback pattern if image fails */}
-      {error && (
-        <div className="absolute inset-0 flex items-center justify-center opacity-30">
+      {/* Fallback pattern if image fails or is missing */}
+      {(error || !hasValidSrc) && (
+        <div className="absolute inset-0 flex items-center justify-center opacity-30" aria-hidden="true">
           <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20zM20 0h20v20H20V0z" fill="currentColor" fillOpacity="0.05" fillRule="evenodd"/>
           </svg>
@@ -67,7 +75,7 @@ export default function ResponsiveImage({
       )}
 
       {/* The Image */}
-      {!error && (
+      {!error && hasValidSrc && (
         <motion.img
           ref={imgRef}
           src={src}

@@ -19,7 +19,7 @@ class AudioManager {
   private listeners: Set<AudioListener> = new Set();
   
   // Volume targets
-  public readonly normalVolume: number = 0.30;
+  public readonly normalVolume: number = 0.15;
   public readonly duckedVolume: number = 0.05;
   public readonly fadeDurationMs: number = 600;
 

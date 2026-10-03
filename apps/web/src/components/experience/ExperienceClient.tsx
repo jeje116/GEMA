@@ -7,12 +7,15 @@ import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import ResponsiveImage from '@/components/media/ResponsiveImage';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
+import { PageMediaData, ExperiencePageData } from '@/content/provider';
 
 interface ExperienceClientProps {
   locale: Locale;
+  pageMedia?: PageMediaData | null;
+  experienceData?: ExperiencePageData | null;
 }
 
-export default function ExperienceClient({ locale }: ExperienceClientProps) {
+export default function ExperienceClient({ locale, pageMedia, experienceData }: ExperienceClientProps) {
   const { t } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
   const heroRef = useRef<HTMLDivElement>(null);
@@ -28,8 +31,8 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
       <div ref={heroRef} className="relative h-screen min-h-[600px] w-full flex items-center justify-center overflow-hidden">
         <motion.div style={{ y: prefersReduced ? 0 : yImage }} className="absolute inset-0 w-full h-[120%] -top-[10%] z-0">
           <ResponsiveImage 
-            src="/media/experience/experience-hero.jpg" 
-            alt="GEMA dining room and garden terrace"
+            src={pageMedia?.experience.heroImage.src || ''} 
+            alt={pageMedia?.experience.heroImage.alt || 'GEMA dining room and garden terrace'}
             className="w-full h-full"
             imgClassName="brightness-[0.7]"
             priority
@@ -37,8 +40,12 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
         </motion.div>
         
         <motion.div style={{ opacity: prefersReduced ? 1 : opacityText }} className="relative z-10 text-center text-white px-4">
-          <p className="font-condensed tracking-[0.2em] uppercase text-xs mb-6 text-[var(--ivory-200)]">The Atmosphere</p>
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl">A Place to Linger</h1>
+          <p className="font-condensed tracking-[0.2em] uppercase text-xs mb-6 text-[var(--ivory-200)]">
+            {experienceData?.hero.kicker}
+          </p>
+          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl">
+            {experienceData?.hero.headline}
+          </h1>
         </motion.div>
       </div>
 
@@ -51,7 +58,7 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
             viewport={{ once: true, margin: "-10%" }}
             className="font-serif text-3xl md:text-4xl leading-relaxed text-[var(--espresso-900)] mb-12"
           >
-            &ldquo;GEMA is designed to be a canvas for connection. Whether bathed in morning light or shadowed by evening candle glow, the room adapts to the conversations it holds.&rdquo;
+            &ldquo;{experienceData?.quote}&rdquo;
           </motion.p>
         </div>
       </section>
@@ -62,10 +69,10 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
           
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-[var(--ivory-200)] pb-8 gap-8">
             <h2 className="font-serif text-4xl md:text-5xl text-[var(--espresso-900)]">
-              Day to Night
+              {experienceData?.dayToNight.heading}
             </h2>
             <p className="font-condensed uppercase tracking-widest text-xs text-[var(--muted)] max-w-xs">
-              From casual business lunches to intimate evening dining, the atmosphere shifts effortlessly.
+              {experienceData?.dayToNight.subtitle}
             </p>
           </div>
 
@@ -79,10 +86,17 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
                 viewport={{ once: true, margin: "-10%" }}
               >
                 <div className="aspect-[4/5] mb-6">
-                  <ResponsiveImage src="/media/experience/experience-day-morning.jpg" alt="Morning dining table at GEMA" />
+                  <ResponsiveImage 
+                    src={pageMedia?.experience.morningImage.src || ''} 
+                    alt={pageMedia?.experience.morningImage.alt || 'Morning dining table at GEMA'} 
+                  />
                 </div>
-                <h3 className="font-serif text-2xl text-[var(--espresso-900)] mb-2">Morning Light</h3>
-                <p className="text-[var(--muted)] text-sm">Sunlight streams through the tall windows, warming the ivory walls and bringing out the rich textures of the natural wood.</p>
+                <h3 className="font-serif text-2xl text-[var(--espresso-900)] mb-2">
+                  {experienceData?.dayToNight.morningHeading}
+                </h3>
+                <p className="text-[var(--muted)] text-sm">
+                  {experienceData?.dayToNight.morningDescription}
+                </p>
               </motion.div>
 
               <motion.div
@@ -91,7 +105,7 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
                  viewport={{ once: true, margin: "-10%" }}
               >
                 <p className="font-serif text-3xl text-[var(--terracotta-dark)] italic leading-relaxed py-12 px-8 border-l border-[var(--terracotta)]">
-                  The transition is seamless. As the sun sets, the music shifts, the lights dim, and a different energy takes over the room.
+                  {experienceData?.dayToNight.transitionQuote}
                 </p>
               </motion.div>
             </div>
@@ -104,10 +118,17 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
                 viewport={{ once: true, margin: "-10%" }}
               >
                 <div className="aspect-video mb-6">
-                  <ResponsiveImage src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&q=80" alt="Evening atmosphere" />
+                  <ResponsiveImage 
+                    src={pageMedia?.experience.eveningImage.src || ''} 
+                    alt={pageMedia?.experience.eveningImage.alt || 'Evening atmosphere'} 
+                  />
                 </div>
-                <h3 className="font-serif text-2xl text-[var(--espresso-900)] mb-2">Evening Shadows</h3>
-                <p className="text-[var(--muted)] text-sm max-w-md">Candlelight catches the subtle veining of the marble tables. The room feels closer, more intimate, designed for lingering over wine and dessert.</p>
+                <h3 className="font-serif text-2xl text-[var(--espresso-900)] mb-2">
+                  {experienceData?.dayToNight.eveningHeading}
+                </h3>
+                <p className="text-[var(--muted)] text-sm max-w-md">
+                  {experienceData?.dayToNight.eveningDescription}
+                </p>
               </motion.div>
 
               <motion.div
@@ -116,7 +137,10 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
                 viewport={{ once: true, margin: "-10%" }}
               >
                 <div className="aspect-square mb-6 w-3/4 ml-auto">
-                  <ResponsiveImage src="/media/experience/experience-culinary-details.jpg" alt="GEMA branded tableware and hospitality details" />
+                  <ResponsiveImage 
+                    src={pageMedia?.experience.detailsImage.src || ''} 
+                    alt={pageMedia?.experience.detailsImage.alt || 'GEMA branded tableware and hospitality details'} 
+                  />
                 </div>
               </motion.div>
             </div>
@@ -132,12 +156,14 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             
             <div className="order-2 md:order-1 max-w-md">
-              <h2 className="font-serif text-4xl md:text-5xl mb-8">The Materials</h2>
+              <h2 className="font-serif text-4xl md:text-5xl mb-8">
+                {experienceData?.materials.heading}
+              </h2>
               <p className="text-[var(--ivory-200)] mb-6 leading-relaxed">
-                We chose materials that age gracefully and tell a story. Warm terracotta, brushed brass, textured plaster walls, and Italian marble form the foundation of GEMA.
+                {experienceData?.materials.body1}
               </p>
               <p className="text-[var(--ivory-200)] leading-relaxed">
-                These elements provide a neutral but textured backdrop that allows the colors of the food and the vibrancy of the guests to take center stage.
+                {experienceData?.materials.body2}
               </p>
             </div>
 
@@ -146,29 +172,69 @@ export default function ExperienceClient({ locale }: ExperienceClientProps) {
                 initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="aspect-square bg-[#8B5A47]"
-              />
+                className="aspect-square relative overflow-hidden"
+              >
+                {pageMedia?.experience.materialImage01?.src ? (
+                  <ResponsiveImage 
+                    src={pageMedia.experience.materialImage01.src} 
+                    alt={pageMedia.experience.materialImage01.alt || 'Material 01'} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#8B5A47]" />
+                )}
+              </motion.div>
               <motion.div 
                 initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="aspect-square bg-[#E8E4D9]"
-              />
+                className="aspect-square relative overflow-hidden"
+              >
+                {pageMedia?.experience.materialImage02?.src ? (
+                  <ResponsiveImage 
+                    src={pageMedia.experience.materialImage02.src} 
+                    alt={pageMedia.experience.materialImage02.alt || 'Material 02'} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#E8E4D9]" />
+                )}
+              </motion.div>
               <motion.div 
                 initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="aspect-square bg-[#B5A18C]"
-              />
+                className="aspect-square relative overflow-hidden"
+              >
+                {pageMedia?.experience.materialImage03?.src ? (
+                  <ResponsiveImage 
+                    src={pageMedia.experience.materialImage03.src} 
+                    alt={pageMedia.experience.materialImage03.alt || 'Material 03'} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#B5A18C]" />
+                )}
+              </motion.div>
               <motion.div 
                 initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3 }}
-                className="aspect-square bg-[#2C2420]"
-              />
+                className="aspect-square relative overflow-hidden"
+              >
+                {pageMedia?.experience.materialImage04?.src ? (
+                  <ResponsiveImage 
+                    src={pageMedia.experience.materialImage04.src} 
+                    alt={pageMedia.experience.materialImage04.alt || 'Material 04'} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#2C2420]" />
+                )}
+              </motion.div>
             </div>
             
           </div>

@@ -3,15 +3,28 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Locale } from '@/i18n/config';
-import { getDictionary, l } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
-import { reviews } from '@/content/fixtures/reviews';
+import { HomepageReviewItem } from '@/content/provider';
 import { cn } from '@/lib/utils';
 
-export default function ReviewsPreview({ locale }: { locale: Locale }) {
-  const { t } = getDictionary(locale);
+interface ReviewsPreviewProps {
+  locale: Locale;
+  reviewsData?: {
+    kicker?: string;
+    items?: HomepageReviewItem[];
+  };
+}
+
+export default function ReviewsPreview({ locale, reviewsData }: ReviewsPreviewProps) {
   const prefersReduced = useReducedMotionSafe();
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const reviews = reviewsData?.items || [];
+  if (reviews.length === 0) {
+    return null;
+  }
+
+  const kicker = reviewsData?.kicker || (locale === 'id' ? 'KATA-KATA TAMU PILIHAN' : 'SELECTED GUEST WORDS');
 
   const next = () => setCurrentIndex((prev) => (prev + 1) % reviews.length);
   const prev = () => setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
@@ -20,7 +33,7 @@ export default function ReviewsPreview({ locale }: { locale: Locale }) {
     <section className="py-24 md:py-32 bg-[var(--ivory-100)] text-center relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <p className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-12">
-          {t('home.reviews.title')} <span className="opacity-50">({t('home.reviews.note')})</span>
+          {kicker}
         </p>
 
         <div className="relative h-[250px] md:h-[200px] flex flex-col justify-center items-center">
@@ -34,8 +47,13 @@ export default function ReviewsPreview({ locale }: { locale: Locale }) {
               className="absolute w-full px-4"
             >
               <h3 className="font-serif text-2xl md:text-4xl text-[var(--espresso-900)] leading-relaxed md:leading-normal">
-                &ldquo;{l(reviews[currentIndex].text, locale)}&rdquo;
+                &ldquo;{reviews[currentIndex].quote}&rdquo;
               </h3>
+              {reviews[currentIndex].attribution && (
+                <p className="font-condensed uppercase tracking-wider text-xs text-[var(--muted)] mt-4">
+                  {reviews[currentIndex].attribution}
+                </p>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

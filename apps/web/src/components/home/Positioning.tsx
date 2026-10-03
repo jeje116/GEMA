@@ -6,9 +6,21 @@ import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 
-export default function Positioning({ locale }: { locale: Locale }) {
+export default function Positioning({
+  locale,
+  positioningData,
+}: {
+  locale: Locale;
+  positioningData?: {
+    text?: string;
+    dietary?: string;
+  };
+}) {
   const { t } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
+
+  const text = positioningData?.text || t('home.positioning.text');
+  const dietary = positioningData?.dietary || t('home.positioning.dietary');
 
   return (
     <section className="py-24 md:py-32 px-4 bg-[var(--ivory-50)] text-center">
@@ -20,7 +32,7 @@ export default function Positioning({ locale }: { locale: Locale }) {
           transition={{ duration: 0.8, ease: 'easeOut' }}
           className="font-serif text-3xl md:text-5xl leading-tight mb-8"
         >
-          {t('home.positioning.text')}
+          {text}
         </motion.h2>
         
         <motion.div
@@ -30,7 +42,7 @@ export default function Positioning({ locale }: { locale: Locale }) {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="inline-block border border-[var(--ivory-200)] px-6 py-2 rounded-full text-xs uppercase tracking-widest font-condensed text-[var(--muted)]"
         >
-          {t('home.positioning.dietary')}
+          {dietary}
         </motion.div>
       </div>
     </section>

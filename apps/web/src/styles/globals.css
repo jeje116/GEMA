@@ -51,3 +51,45 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ========================================================= */
+/* SPLASH-009: Bottom Metadata Responsive Rebalance          */
+/* ========================================================= */
+
+/* Band A: Mobile Small / Normal (360px - 412px) */
+.splash-bottom-meta-mobile {
+  padding-left: clamp(2rem, 8dvw, 3rem);
+  padding-right: clamp(2.2rem, 8.5dvw, 3.2rem);
+  padding-bottom: clamp(1.8rem, 4.2dvh, 2.4rem);
+}
+
+/* Band B: Mobile Wide / Short-Wide (430px - 767px) */
+@media (min-width: 430px) and (max-width: 767px) {
+  .splash-bottom-meta-mobile {
+    padding-left: clamp(2.2rem, 8.5dvw, 3.2rem);
+    padding-right: clamp(2.6rem, 10dvw, 3.8rem);
+    padding-bottom: clamp(1.8rem, 4.2dvh, 2.4rem);
+  }
+}
+
+/* Override 1: Short / Wide Mobile (width >= 430px and aspect ratio >= 0.56) */
+@media (min-width: 430px) and (max-width: 767px) and (min-aspect-ratio: 56/100) {
+  .splash-bottom-meta-mobile {
+    padding-left: clamp(2.4rem, 9dvw, 3.4rem);
+    padding-right: clamp(3rem, 11dvw, 4.2rem);
+    padding-bottom: clamp(1.8rem, 4.2dvh, 2.4rem);
+  }
+}
+
+/* Band C & D: Desktop / Tablet (width >= 768px) */
+.splash-bottom-meta-desktop {
+  bottom: clamp(3.8rem, 9.0%, 5.8rem);
+}
+
+/* Override 2: Short Desktop (width >= 1280px and height <= 800px) */
+@media (min-width: 1280px) and (max-height: 800px) {
+  .splash-bottom-meta-desktop {
+    bottom: clamp(4.0rem, 9.4%, 5.8rem);
+  }
+}
+

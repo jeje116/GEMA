@@ -35,9 +35,26 @@ drive-download-*/
 # Root master/source media files (canonical copies live in apps/web/public/media/)
 /GEMA_brand.png
 /stillness-in-the-atrium_GEMA.mp3
-
-# Agent planning / internal workflow
-.agents/
+/splash-screen-desktop.mp4
+/splash-screen-mobile.mp4
 
 # PDF source/reference files
 *.pdf
+
+# Local development TLS certificates & keys (DEV-HTTPS-001)
+**/.certs/
+**/certs/
+**/certificates/
+*.pem
+*.key
+*.crt
+
+# Spurious local media directory (canonical is apps/web/public/media/cms/)
+apps/public/
+
+# Editor temporary & configuration files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

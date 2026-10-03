@@ -71,6 +71,7 @@ export interface JournalEntry {
   bodyBlocks: BodyBlock[];
   publishDate: string; // ISO 8601
   coverImage: string;
+  imageCaption?: LocalizedText;
   authorLabel: string;
   relatedIds?: string[];
   contentStatus: ContentStatus;
@@ -78,10 +79,16 @@ export interface JournalEntry {
 
 export interface Recognition {
   id: string;
+  slug: string;
   year: string;
+  date?: string;
   title: LocalizedText;
   awardingBody: string;
   scope: 'restaurant' | 'chef';
+  coverImage?: string;
+  imageCaption?: LocalizedText;
+  excerpt?: LocalizedText;
+  bodyBlocks?: BodyBlock[];
   logoOrImage?: string;
   externalUrl?: string;
   contentStatus: ContentStatus;
@@ -92,13 +99,16 @@ export type RecognitionItem = Recognition;
 export interface SiteData {
   name: string;
   fullAddress: string;
+  locationLabel?: string;
   mapUrl: string;
   phone: string;
   whatsappNumber: string;
   email?: string;
+  dietaryPolicy?: string;
   openingHours: LocalizedText[];
   services: string[];
   instagramUrl: string;
+  tiktokUrl?: string;
   contentStatus: Partial<Record<keyof SiteData, ContentStatus>>;
 }
 
@@ -106,8 +116,13 @@ export type LocationData = SiteData;
 
 export interface Review {
   id: string;
-  theme: string;
+  theme?: string;
   text: LocalizedText;
+  quote?: string;
+  attribution?: string;
+  sourceType?: string;
+  sourceLabel?: string;
+  sourceUrl?: string;
   contentStatus: ContentStatus;
 }
 

@@ -23,3 +23,15 @@ export function formatTime(dateString: string, locale: string): string {
     return dateString;
   }
 }
+
+import { Event } from '@/content/types';
+
+export function getEventState(event: Event, overrideNow?: Date): 'upcoming' | 'ongoing' | 'past' {
+  const checkTime = overrideNow ? overrideNow.getTime() : Date.now();
+  const start = new Date(event.startDateTime).getTime();
+  const end = new Date(event.endDateTime).getTime();
+  
+  if (checkTime < start) return 'upcoming';
+  if (checkTime <= end) return 'ongoing';
+  return 'past';
+}

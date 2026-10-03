@@ -5,14 +5,29 @@ import { motion } from 'motion/react';
 import PageReveal from '@/components/motion/PageReveal';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import ResponsiveImage from '@/components/media/ResponsiveImage';
+import { ChefMediaData, ChefData } from '@/content/provider';
 
-export default function ChefClient() {
+interface ChefClientProps {
+  chefMedia?: ChefMediaData | null;
+  chefData?: ChefData | null;
+}
+
+export default function ChefClient({ chefMedia, chefData }: ChefClientProps = {}) {
   const prefersReduced = useReducedMotionSafe();
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
   const [isPortraitRevealed, setIsPortraitRevealed] = useState(false);
   const hasTriggeredReveal = useRef(false);
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const portraitSrc = chefData?.portrait.src || chefMedia?.portrait.src || '';
+  const portraitAlt = chefData?.portrait.alt || chefMedia?.portrait.alt || '';
+
+  useEffect(() => {
+    if (!portraitSrc && process.env.NODE_ENV !== 'production') {
+      console.error('[ChefClient Error] Missing CMS chef portrait from Chef Global.');
+    }
+  }, [portraitSrc]);
 
   // Viewport trigger for portrait color reveal (Desktop & Mobile):
   // Coordinates with PageReveal curtain (0.4s delay + 1.4s duration = 1.8s) so the portrait
@@ -82,8 +97,8 @@ export default function ChefClient() {
               }
             >
               <ResponsiveImage 
-                src="/media/chef/chef-mandif-warokka.jpg" 
-                alt="Chef Mandif Warokka"
+                src={portraitSrc} 
+                alt={portraitAlt}
                 className="w-full h-full"
                 imgClassName={prefersReduced ? 'grayscale-0' : undefined}
                 priority
@@ -100,7 +115,7 @@ export default function ChefClient() {
               viewport={{ once: true }}
               className="font-serif text-5xl md:text-7xl text-[var(--espresso-900)] mb-6"
             >
-              Mandif Warokka
+              {chefData?.name || 'Mandif Warokka'}
             </motion.h1>
             
             <motion.p 
@@ -110,35 +125,50 @@ export default function ChefClient() {
                transition={{ delay: 0.1 }}
               className="font-condensed uppercase tracking-widest text-xs text-[var(--terracotta)] mb-12"
             >
-              Culinary Director
+              {chefData?.role || 'Culinary Director'}
             </motion.p>
 
-            <div className="prose prose-lg prose-p:text-[var(--muted)] prose-p:leading-relaxed max-w-none mb-16">
-              <p>
-                With over two decades of culinary experience spanning the globe, Chef Mandif Warokka brings a profound understanding of international techniques and flavor profiles to GEMA.
-              </p>
-              <p>
-                His journey began with a deep appreciation for the fundamental building blocks of European cuisine, which he honed through rigorous training and practice in acclaimed kitchens across Europe and the Middle East before making his mark in Southeast Asia.
-              </p>
-              <p>
-                Known for his meticulous attention to detail and uncompromising standards, Mandif approaches Italian cuisine not merely as a set of traditional recipes, but as a philosophy of ingredient respect.
-              </p>
-            </div>
+            {(() => {
+              const defaultBios = [
+                'With over two decades of culinary experience spanning the globe, Chef Mandif Warokka brings a profound understanding of international techniques and flavor profiles to GEMA.',
+                'His journey began with a deep appreciation for the fundamental building blocks of European cuisine, which he honed through rigorous training and practice in acclaimed kitchens across Europe and the Middle East before making his mark in Southeast Asia.',
+                'Known for his meticulous attention to detail and uncompromising standards, Mandif approaches Italian cuisine not merely as a set of traditional recipes, but as a philosophy of ingredient respect.',
+                'At GEMA, he translates this philosophy into a menu that is both elevated and approachable. By insisting on the finest produce and refusing shortcuts, he ensures that every plate leaving the kitchen is a testament to culinary craftsmanship.',
+              ];
+              const paragraphs = chefData?.biography
+                ? chefData.biography.split('\n\n').filter(Boolean)
+                : defaultBios;
+              const preQuote = paragraphs.slice(0, 3);
+              const postQuote = paragraphs.slice(3);
+              const quoteText = chefData?.quote || 'Surabaya has a vibrant, sophisticated palate. GEMA is my response to that—a place where technique serves comfort, and every dish is crafted for the table.';
 
-            <motion.blockquote 
-              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-10%" }}
-              className="font-serif text-3xl md:text-4xl text-[var(--terracotta-dark)] italic leading-relaxed py-12 px-8 border-l border-[var(--terracotta)] mb-16"
-            >
-              &ldquo;Surabaya has a vibrant, sophisticated palate. GEMA is my response to that—a place where technique serves comfort, and every dish is crafted for the table.&rdquo;
-            </motion.blockquote>
+              return (
+                <>
+                  <div className="prose prose-lg prose-p:text-[var(--muted)] prose-p:leading-relaxed max-w-none mb-16">
+                    {preQuote.map((p, idx) => (
+                      <p key={idx}>{p}</p>
+                    ))}
+                  </div>
 
-            <div className="prose prose-lg prose-p:text-[var(--muted)] prose-p:leading-relaxed max-w-none">
-              <p>
-                At GEMA, he translates this philosophy into a menu that is both elevated and approachable. By insisting on the finest produce and refusing shortcuts, he ensures that every plate leaving the kitchen is a testament to culinary craftsmanship.
-              </p>
-            </div>
+                  <motion.blockquote 
+                    initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "-10%" }}
+                    className="font-serif text-3xl md:text-4xl text-[var(--terracotta-dark)] italic leading-relaxed py-12 px-8 border-l border-[var(--terracotta)] mb-16"
+                  >
+                    &ldquo;{quoteText}&rdquo;
+                  </motion.blockquote>
+
+                  {postQuote.length > 0 && (
+                    <div className="prose prose-lg prose-p:text-[var(--muted)] prose-p:leading-relaxed max-w-none">
+                      {postQuote.map((p, idx) => (
+                        <p key={idx}>{p}</p>
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
 
           </div>
 

@@ -5,9 +5,8 @@ import PageReveal from '@/components/motion/PageReveal';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import { useUI } from '@/components/shared/UIContext';
 import { Event } from '@/content/types';
-import { getEventState } from '@/content/fixtures/events';
 import ResponsiveImage from '@/components/media/ResponsiveImage';
-import { formatDate, formatTime } from '@/lib/date';
+import { formatDate, formatTime, getEventState } from '@/lib/date';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 
@@ -66,7 +65,9 @@ export default function EventDetailClient({ locale, event }: EventDetailClientPr
             <div className="sticky top-32 bg-white p-8 border border-[var(--ivory-200)] flex flex-col gap-8">
               
               <div>
-                <h3 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-2">Date</h3>
+                <h3 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-2">
+                  {t('events.meta.date')}
+                </h3>
                 <p className="text-[var(--espresso-900)]">
                   {formatDate(event.startDateTime, locale)}
                   {event.endDateTime && ` - ${formatDate(event.endDateTime, locale)}`}
@@ -74,7 +75,9 @@ export default function EventDetailClient({ locale, event }: EventDetailClientPr
               </div>
 
               <div>
-                <h3 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-2">Time</h3>
+                <h3 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-2">
+                  {t('events.meta.time')}
+                </h3>
                 <p className="text-[var(--espresso-900)]">
                   {formatTime(event.startDateTime, locale)}
                   {event.endDateTime && ` to ${formatTime(event.endDateTime, locale)}`}
@@ -83,7 +86,9 @@ export default function EventDetailClient({ locale, event }: EventDetailClientPr
 
               {event.priceLabel && (
                 <div>
-                  <h3 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-2">Price</h3>
+                  <h3 className="font-condensed tracking-widest text-xs uppercase text-[var(--muted)] mb-2">
+                    {t('events.meta.price')}
+                  </h3>
                   <p className="text-[var(--espresso-900)]">{l(event.priceLabel)}</p>
                 </div>
               )}
@@ -91,14 +96,14 @@ export default function EventDetailClient({ locale, event }: EventDetailClientPr
               <div className="pt-6 border-t border-[var(--ivory-200)]">
                 {isPast ? (
                   <p className="text-sm font-condensed tracking-widest text-[var(--muted)] uppercase text-center bg-[var(--ivory-100)] py-3">
-                    Event Concluded
+                    {t('events.state.concluded')}
                   </p>
                 ) : (
                   <button 
                     onClick={openReservation}
                     className="block text-center w-full bg-[var(--ink)] text-white py-4 font-condensed tracking-widest uppercase text-sm hover:bg-[var(--espresso-800)] transition-colors cursor-pointer"
                   >
-                    Request Reservation
+                    {t('events.cta.request')}
                   </button>
                 )}
               </div>

@@ -7,19 +7,51 @@ import Image from 'next/image';
 import { Locale } from '@/i18n/config';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import { cn } from '@/lib/utils';
-import { homeAssets } from '@/content/media/homeAssets';
+import { HomepageCuisineTeaser } from '@/content/provider';
 
-export default function CuisineCategories({ locale }: { locale: Locale }) {
+interface CuisineCategoriesProps {
+  locale: Locale;
+  cuisineData?: HomepageCuisineTeaser;
+}
+
+export default function CuisineCategories({ locale, cuisineData }: CuisineCategoriesProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const prefersReduced = useReducedMotionSafe();
-  const categories = homeAssets.cuisineTeaser;
 
-  const getCatName = (cat: (typeof categories)[number]) => {
-    if (locale === 'id' && cat.name.id) {
-      return cat.name.id;
-    }
-    return cat.name.en || cat.key;
-  };
+  const categories = [
+    {
+      id: 'item01',
+      num: '01',
+      label: cuisineData?.item01?.label || '',
+      img: cuisineData?.item01?.image?.src || '',
+      alt: cuisineData?.item01?.image?.alt || '',
+      objectPosition: 'object-center',
+    },
+    {
+      id: 'item02',
+      num: '02',
+      label: cuisineData?.item02?.label || '',
+      img: cuisineData?.item02?.image?.src || '',
+      alt: cuisineData?.item02?.image?.alt || '',
+      objectPosition: 'object-center',
+    },
+    {
+      id: 'item03',
+      num: '03',
+      label: cuisineData?.item03?.label || '',
+      img: cuisineData?.item03?.image?.src || '',
+      alt: cuisineData?.item03?.image?.alt || '',
+      objectPosition: 'object-[center_35%]',
+    },
+    {
+      id: 'item04',
+      num: '04',
+      label: cuisineData?.item04?.label || '',
+      img: cuisineData?.item04?.image?.src || '',
+      alt: cuisineData?.item04?.image?.alt || '',
+      objectPosition: 'object-center',
+    },
+  ];
 
   return (
     <section className="relative h-screen min-h-[600px] w-full overflow-hidden bg-[var(--espresso-900)] text-white">
@@ -34,13 +66,17 @@ export default function CuisineCategories({ locale }: { locale: Locale }) {
             transition={{ duration: prefersReduced ? 0 : 0.45, ease: 'easeInOut' }}
             className="absolute inset-0"
           >
-            <Image 
-              src={categories[activeIndex].img} 
-              alt={categories[activeIndex].alt}
-              fill
-              sizes="100vw"
-              className={cn('object-cover', categories[activeIndex].objectPosition || 'object-center')}
-            />
+            {categories[activeIndex]?.img ? (
+              <Image 
+                src={categories[activeIndex].img} 
+                alt={categories[activeIndex].alt}
+                fill
+                sizes="100vw"
+                className={cn('object-cover', categories[activeIndex].objectPosition)}
+              />
+            ) : (
+              <div className="w-full h-full bg-[var(--espresso-900)] opacity-60" />
+            )}
           </motion.div>
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
@@ -63,13 +99,13 @@ export default function CuisineCategories({ locale }: { locale: Locale }) {
                 transition={{ duration: 0.3 }}
               >
                 <span className="font-condensed text-xs md:text-sm tracking-widest uppercase hidden md:block">
-                  0{index + 1}
+                  {cat.num}
                 </span>
                 <h3 className={cn(
                   'font-serif text-4xl md:text-6xl transition-transform duration-300 ease-out',
                   activeIndex === index ? 'translate-x-4 md:translate-x-8' : 'translate-x-0'
                 )}>
-                  {getCatName(cat)}
+                  {cat.label}
                 </h3>
               </motion.div>
             </button>

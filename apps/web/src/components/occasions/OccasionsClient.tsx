@@ -9,17 +9,75 @@ import { PrivateEventCategory, PastBrandEvent } from '@/content/types';
 import ResponsiveImage from '@/components/media/ResponsiveImage';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
+import { PageMediaData, OccasionsPageData } from '@/content/provider';
 
 interface OccasionsClientProps {
   locale: Locale;
-  categories: PrivateEventCategory[];
-  brandEvents: PastBrandEvent[];
+  occasionsData?: OccasionsPageData | null;
+  pageMedia?: PageMediaData | null;
 }
 
-export default function OccasionsClient({ locale, categories, brandEvents }: OccasionsClientProps) {
-  const { t, l } = getDictionary(locale);
+export default function OccasionsClient({ locale, occasionsData, pageMedia }: OccasionsClientProps) {
+  const { t } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
   const { openReservation } = useUI();
+
+  const categories = [
+    {
+      id: 'private-dining',
+      title: occasionsData?.privateDining.title || '',
+      description: occasionsData?.privateDining.description || '',
+      image: pageMedia?.occasions.privateDiningImage.src || '',
+      features: [
+        occasionsData?.privateDining.feature1 || '',
+        occasionsData?.privateDining.feature2 || '',
+        occasionsData?.privateDining.feature3 || '',
+      ],
+    },
+    {
+      id: 'wedding',
+      title: occasionsData?.wedding.title || '',
+      description: occasionsData?.wedding.description || '',
+      image: pageMedia?.occasions.weddingImage.src || '',
+      features: [
+        occasionsData?.wedding.feature1 || '',
+        occasionsData?.wedding.feature2 || '',
+        occasionsData?.wedding.feature3 || '',
+      ],
+    },
+    {
+      id: 'birthday',
+      title: occasionsData?.birthday.title || '',
+      description: occasionsData?.birthday.description || '',
+      image: pageMedia?.occasions.birthdayImage.src || '',
+      features: [
+        occasionsData?.birthday.feature1 || '',
+        occasionsData?.birthday.feature2 || '',
+        occasionsData?.birthday.feature3 || '',
+      ],
+    },
+  ];
+
+  const brandEvents = [
+    {
+      id: 'mondial',
+      brand: occasionsData?.brandEvents.mondial.brand || 'Mondial',
+      title: occasionsData?.brandEvents.mondial.title || '',
+      image: pageMedia?.occasions.brandMondialImage.src || '',
+    },
+    {
+      id: 'frank-and-co',
+      brand: occasionsData?.brandEvents.frankCo.brand || 'Frank & Co',
+      title: occasionsData?.brandEvents.frankCo.title || '',
+      image: pageMedia?.occasions.brandFrankCoImage.src || '',
+    },
+    {
+      id: 'maharva',
+      brand: occasionsData?.brandEvents.maharva.brand || 'Maharva',
+      title: occasionsData?.brandEvents.maharva.title || '',
+      image: pageMedia?.occasions.brandMaharvaImage.src || '',
+    },
+  ];
 
   return (
     <PageReveal title={t('nav.occasions')} className="bg-[var(--white)] min-h-screen">
@@ -27,8 +85,8 @@ export default function OccasionsClient({ locale, categories, brandEvents }: Occ
       {/* Hero Section */}
       <div className="w-full h-[60vh] md:h-[70vh] relative">
         <ResponsiveImage 
-          src="/media/occasions/occasions-hero.jpg" 
-          alt="GEMA Occasions"
+          src={pageMedia?.occasions.heroImage.src || ''} 
+          alt={pageMedia?.occasions.heroImage.alt || 'GEMA Occasions'}
           className="w-full h-full"
           imgClassName="brightness-[0.7] object-[center_40%]"
           priority
@@ -36,10 +94,10 @@ export default function OccasionsClient({ locale, categories, brandEvents }: Occ
         <div className="absolute inset-0 flex items-center justify-center text-center p-6">
           <div className="max-w-3xl">
             <h1 className="font-serif text-5xl md:text-7xl text-white mb-6">
-              {t('nav.occasions')}
+              {occasionsData?.hero.title || t('nav.occasions')}
             </h1>
             <p className="text-[var(--ivory-100)] text-lg md:text-xl font-light">
-              Where unforgettable moments are crafted with precision, art, and hospitality.
+              {occasionsData?.hero.subtitle}
             </p>
           </div>
         </div>
@@ -61,23 +119,23 @@ export default function OccasionsClient({ locale, categories, brandEvents }: Occ
               <div className="w-full md:w-1/2 aspect-[4/5] relative overflow-hidden">
                 <ResponsiveImage 
                   src={category.image} 
-                  alt={l(category.title)}
+                  alt={category.title}
                   className="w-full h-full hover:scale-105 transition-transform duration-1000 ease-out"
                 />
               </div>
               <div className="w-full md:w-1/2">
                 <h2 className="font-serif text-4xl lg:text-5xl text-[var(--espresso-900)] mb-6">
-                  {l(category.title)}
+                  {category.title}
                 </h2>
                 <p className="text-[var(--muted)] text-lg mb-8 leading-relaxed">
-                  {l(category.description)}
+                  {category.description}
                 </p>
                 <ul className="flex flex-col gap-4 mb-10">
                   {category.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <span className="text-[var(--terracotta)] mt-1">•</span>
                       <span className="text-[var(--espresso-900)] font-condensed tracking-wide">
-                        {l(feature)}
+                        {feature}
                       </span>
                     </li>
                   ))}
@@ -86,7 +144,7 @@ export default function OccasionsClient({ locale, categories, brandEvents }: Occ
                   onClick={openReservation}
                   className="px-8 py-4 bg-[var(--ink)] text-white font-condensed tracking-widest uppercase text-sm hover:bg-[var(--espresso-800)] transition-colors inline-block text-center cursor-pointer"
                 >
-                  Inquire Now
+                  {t('occasions.inquire')}
                 </button>
               </div>
             </motion.div>
@@ -97,10 +155,10 @@ export default function OccasionsClient({ locale, categories, brandEvents }: Occ
         <div className="border-t border-[var(--ivory-200)] pt-24">
           <div className="text-center mb-16">
             <h2 className="font-serif text-3xl md:text-5xl text-[var(--espresso-900)] mb-4">
-              Brand Exclusives
+              {occasionsData?.brandExclusives.heading}
             </h2>
             <p className="text-[var(--muted)] max-w-2xl mx-auto">
-              GEMA has been the chosen venue for prestigious product launches, gala dinners, and showcases by leading luxury brands.
+              {occasionsData?.brandExclusives.description}
             </p>
           </div>
 
@@ -126,7 +184,7 @@ export default function OccasionsClient({ locale, categories, brandEvents }: Occ
                   {event.brand}
                 </h3>
                 <h4 className="font-serif text-xl md:text-2xl text-[var(--espresso-900)] group-hover:text-[var(--terracotta-dark)] transition-colors">
-                  {l(event.title)}
+                  {event.title}
                 </h4>
               </motion.div>
             ))}
@@ -137,3 +195,4 @@ export default function OccasionsClient({ locale, categories, brandEvents }: Occ
     </PageReveal>
   );
 }
+

@@ -5,12 +5,38 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
-import { siteData } from '@/content/fixtures/site';
 import { useUI } from '@/components/shared/UIContext';
+import { NavLink } from '@/content/provider';
+import { SiteData } from '@/content/types';
 
-export default function SiteFooter({ locale }: { locale: Locale }) {
+interface SiteFooterProps {
+  locale: Locale;
+  footerLinks?: NavLink[];
+  siteData?: SiteData;
+}
+
+export default function SiteFooter({ locale, footerLinks, siteData }: SiteFooterProps) {
   const { t } = getDictionary(locale);
   const { openReservation } = useUI();
+
+  const navLinks = (footerLinks && footerLinks.length > 0)
+    ? footerLinks.map(link => ({
+        to: link.url.startsWith('/') ? `/${locale}${link.url}` : link.url,
+        label: link.label,
+      }))
+    : [
+        { to: `/${locale}/menu`, label: t('nav.menu') },
+        { to: `/${locale}/experience`, label: t('nav.experience') },
+        { to: `/${locale}/occasions`, label: t('nav.occasions') },
+        { to: `/${locale}/events`, label: t('nav.events') },
+        { to: `/${locale}/about`, label: t('nav.about') },
+        { to: `/${locale}/journal`, label: t('nav.journal') },
+        { to: `/${locale}/recognition`, label: t('nav.recognition') },
+      ];
+
+  const fullAddress = siteData?.fullAddress || '';
+  const phone = siteData?.phone || '';
+  const email = siteData?.email || '';
 
   return (
     <footer className="bg-[var(--ink)] text-[var(--ivory-100)] pt-16 md:pt-24 pb-8 md:pb-12 px-4 sm:px-6 md:px-8 border-t border-[var(--espresso-800)]/40">
@@ -33,21 +59,21 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
               />
             </Link>
             <address className="not-italic text-sm text-[var(--muted)] leading-relaxed space-y-2 max-w-xs">
-              <p>{siteData.fullAddress}</p>
+              <p>{fullAddress}</p>
               <p className="pt-2">
                 <a
-                  href={`tel:${siteData.phone.replace(/[^0-9]/g, '')}`}
+                  href={`tel:${phone.replace(/[^0-9]/g, '')}`}
                   className="text-[var(--ivory-100)] hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm"
                 >
-                  {siteData.phone}
+                  {phone}
                 </a>
               </p>
               <p>
                 <a
-                  href={`mailto:${siteData.email}`}
+                  href={`mailto:${email}`}
                   className="text-[var(--muted)] hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm"
                 >
-                  {siteData.email}
+                  {email}
                 </a>
               </p>
             </address>
@@ -55,15 +81,20 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
 
           {/* Block 2: Navigation */}
           <div className="lg:col-span-3 lg:col-start-6">
-            <h3 className="font-condensed uppercase tracking-widest text-xs text-[var(--muted)] mb-5">Navigation</h3>
+            <h3 className="font-condensed uppercase tracking-widest text-xs text-[var(--muted)] mb-5">
+              {t('footer.nav')}
+            </h3>
             <ul className="flex flex-col gap-2.5 text-sm">
-              <li><Link href={`/${locale}/menu`} className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm">{t('nav.menu')}</Link></li>
-              <li><Link href={`/${locale}/experience`} className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm">{t('nav.experience')}</Link></li>
-              <li><Link href={`/${locale}/occasions`} className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm">{t('nav.occasions')}</Link></li>
-              <li><Link href={`/${locale}/events`} className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm">{t('nav.events')}</Link></li>
-              <li><Link href={`/${locale}/about`} className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm">{t('nav.about')}</Link></li>
-              <li><Link href={`/${locale}/journal`} className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm">{t('nav.journal')}</Link></li>
-              <li><Link href={`/${locale}/recognition`} className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm">{t('nav.recognition')}</Link></li>
+              {navLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    href={link.to}
+                    className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -91,68 +122,76 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
           <div className="lg:col-span-2">
             <h3 className="font-condensed uppercase tracking-widest text-xs text-[var(--muted)] mb-5">{t('footer.social')}</h3>
             <div className="flex items-center gap-3 mb-4">
-              <a
-                href="https://www.tiktok.com/@gemarestaurant"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GEMA on TikTok"
-                className="w-10 h-10 rounded-full flex items-center justify-center text-[var(--ivory-100)] border border-[var(--espresso-800)] bg-[var(--espresso-900)]/40 hover:bg-[var(--espresso-900)] hover:text-[var(--terracotta)] hover:border-[var(--terracotta)] hover:-translate-y-0.5 hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--terracotta)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)] transition-all duration-200 ease-out cursor-pointer"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  width="18"
-                  height="18"
-                  fill="currentColor"
-                  aria-hidden="true"
+              {siteData?.tiktokUrl && (
+                <a
+                  href={siteData.tiktokUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GEMA on TikTok"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-[var(--ivory-100)] border border-[var(--espresso-800)] bg-[var(--espresso-900)]/40 hover:bg-[var(--espresso-900)] hover:text-[var(--terracotta)] hover:border-[var(--terracotta)] hover:-translate-y-0.5 hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--terracotta)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)] transition-all duration-200 ease-out cursor-pointer"
                 >
-                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.88 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.3 0 .59.04.86.12V9.39a6.38 6.38 0 0 0-.86-.06A6.34 6.34 0 0 0 3 15.67 6.34 6.34 0 0 0 9.34 22a6.34 6.34 0 0 0 6.34-6.33V8.84a8.3 8.3 0 0 0 5-1.63l-1.09-2.52z" />
-                </svg>
-              </a>
-              <a
-                href="https://www.instagram.com/gema.surabaya/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GEMA on Instagram"
-                className="w-10 h-10 rounded-full flex items-center justify-center text-[var(--ivory-100)] border border-[var(--espresso-800)] bg-[var(--espresso-900)]/40 hover:bg-[var(--espresso-900)] hover:text-[var(--terracotta)] hover:border-[var(--terracotta)] hover:-translate-y-0.5 hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--terracotta)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)] transition-all duration-200 ease-out cursor-pointer"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  width="18"
-                  height="18"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.88 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.3 0 .59.04.86.12V9.39a6.38 6.38 0 0 0-.86-.06A6.34 6.34 0 0 0 3 15.67 6.34 6.34 0 0 0 9.34 22a6.34 6.34 0 0 0 6.34-6.33V8.84a8.3 8.3 0 0 0 5-1.63l-1.09-2.52z" />
+                  </svg>
+                </a>
+              )}
+              {siteData?.instagramUrl && (
+                <a
+                  href={siteData.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GEMA on Instagram"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-[var(--ivory-100)] border border-[var(--espresso-800)] bg-[var(--espresso-900)]/40 hover:bg-[var(--espresso-900)] hover:text-[var(--terracotta)] hover:border-[var(--terracotta)] hover:-translate-y-0.5 hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--terracotta)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--ink)] transition-all duration-200 ease-out cursor-pointer"
                 >
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                </svg>
-              </a>
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                  </svg>
+                </a>
+              )}
             </div>
             <div className="text-xs font-condensed tracking-wider text-[var(--muted)] space-y-1">
-              <p>
-                <a
-                  href="https://www.instagram.com/gema.surabaya/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm"
-                >
-                  @gema.surabaya
-                </a>
-              </p>
-              <p>
-                <a
-                  href="https://www.tiktok.com/@gemarestaurant"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm"
-                >
-                  @gemarestaurant
-                </a>
-              </p>
+              {siteData?.instagramUrl && (
+                <p>
+                  <a
+                    href={siteData.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm"
+                  >
+                    {siteData.instagramUrl.replace(/\/+$/, '').split('/').pop()?.replace(/^@/, '')}
+                  </a>
+                </p>
+              )}
+              {siteData?.tiktokUrl && (
+                <p>
+                  <a
+                    href={siteData.tiktokUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[var(--terracotta)] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--terracotta)] rounded-sm"
+                  >
+                    {siteData.tiktokUrl.replace(/\/+$/, '').split('/').pop()?.replace(/^@/, '')}
+                  </a>
+                </p>
+              )}
             </div>
           </div>
 
@@ -162,9 +201,9 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
         <div className="border-t border-[var(--espresso-800)]/60 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-condensed tracking-wider text-[var(--muted)]">
           <p>© {new Date().getFullYear()} GEMA Restaurant & Societiet. All rights reserved.</p>
           <div className="flex items-center gap-4 text-[var(--muted)]/80">
-            <span>No Pork, No Lard</span>
+            <span>{siteData?.dietaryPolicy || (locale === 'id' ? 'Tanpa Babi, Tanpa Lemak Babi' : 'No Pork, No Lard')}</span>
             <span aria-hidden="true">•</span>
-            <span>Surabaya, Indonesia</span>
+            <span>{siteData?.locationLabel || 'Surabaya, Indonesia'}</span>
           </div>
         </div>
       </div>

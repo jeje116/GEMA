@@ -7,15 +7,25 @@ import Image from 'next/image';
 import { Locale } from '@/i18n/config';
 import { getDictionary, l } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
-import { events, getEventState } from '@/content/fixtures/events';
-import { formatDate } from '@/lib/date';
+import { Event } from '@/content/types';
+import { formatDate, getEventState } from '@/lib/date';
 
-export default function EventsPreview({ locale }: { locale: Locale }) {
+interface EventsPreviewProps {
+  locale: Locale;
+  events?: Event[];
+  eventsIntroData?: {
+    ctaLabel?: string;
+  };
+}
+
+export default function EventsPreview({ locale, events: propEvents, eventsIntroData }: EventsPreviewProps) {
   const { t } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
 
+  const allEvents = propEvents || [];
+
   const { ongoingEvent, upcomingEvents } = useMemo(() => {
-    const allStates = events.map(e => ({ event: e, state: getEventState(e) }));
+    const allStates = allEvents.map(e => ({ event: e, state: getEventState(e) }));
     
     const ongoing = allStates.find(e => e.state === 'ongoing')?.event;
     const upcoming = allStates
@@ -24,7 +34,7 @@ export default function EventsPreview({ locale }: { locale: Locale }) {
       .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime());
 
     return { ongoingEvent: ongoing, upcomingEvents: upcoming };
-  }, []);
+  }, [allEvents]);
 
   if (!ongoingEvent && upcomingEvents.length === 0) {
     return null;
@@ -57,7 +67,7 @@ export default function EventsPreview({ locale }: { locale: Locale }) {
             href={`/${locale}/events`}
             className="font-condensed tracking-widest text-xs uppercase hover:text-[var(--terracotta)] transition-colors border-b border-transparent hover:border-[var(--terracotta)] pb-1"
           >
-            {t('home.events.cta')}
+            {eventsIntroData?.ctaLabel || t('home.events.cta')}
           </Link>
         </div>
 

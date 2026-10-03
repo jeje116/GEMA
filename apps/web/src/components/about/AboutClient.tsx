@@ -7,14 +7,23 @@ import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import ResponsiveImage from '@/components/media/ResponsiveImage';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
+import { PageMediaData, AboutPageData } from '@/content/provider';
+import { SiteData } from '@/content/types';
 
 interface AboutClientProps {
   locale: Locale;
+  pageMedia?: PageMediaData | null;
+  aboutData?: AboutPageData | null;
+  siteData?: SiteData | null;
 }
 
-export default function AboutClient({ locale }: AboutClientProps) {
+export default function AboutClient({ locale, pageMedia, aboutData, siteData }: AboutClientProps) {
   const { t } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
+
+  const dietarySentence = aboutData?.philosophy
+    ? `${aboutData.philosophy.dietaryPrefix}${siteData?.dietaryPolicy || 'No Pork, No Lard'}${aboutData.philosophy.dietarySuffix}`
+    : '';
 
   return (
     <PageReveal title="About GEMA" className="bg-[var(--ivory-50)] min-h-screen">
@@ -22,10 +31,10 @@ export default function AboutClient({ locale }: AboutClientProps) {
       {/* Hero */}
       <div className="pt-40 pb-24 px-4 max-w-4xl mx-auto text-center">
         <h1 className="font-serif text-5xl md:text-7xl text-[var(--espresso-900)] mb-8">
-          The Resonance of Good Taste
+          {aboutData?.hero.headline}
         </h1>
         <p className="text-[var(--muted)] text-lg leading-relaxed max-w-2xl mx-auto">
-          GEMA, meaning &apos;echo&apos; or &apos;resonance&apos;, reflects our belief that a great meal continues to sound in the memory long after the table is cleared.
+          {aboutData?.hero.subtitle}
         </p>
       </div>
 
@@ -39,18 +48,20 @@ export default function AboutClient({ locale }: AboutClientProps) {
              viewport={{ once: true, margin: "-10%" }}
              className="order-2 md:order-1"
           >
-            <h2 className="font-serif text-3xl md:text-5xl text-[var(--espresso-900)] mb-6">The Origin</h2>
+            <h2 className="font-serif text-3xl md:text-5xl text-[var(--espresso-900)] mb-6">
+              {aboutData?.origin.title}
+            </h2>
             <p className="text-[var(--muted)] mb-6 leading-relaxed">
-              Born from a desire to bring elevated, authentic Italian dining to Surabaya, GEMA was conceived as more than a restaurant. It is a <em>Sociëteit</em>—a gathering place for those who appreciate the intersection of culinary tradition and contemporary art.
+              {aboutData?.origin.body1}
             </p>
             <p className="text-[var(--muted)] leading-relaxed">
-              We sought to create a space that feels both cosmopolitan and deeply rooted in hospitality, where every detail is considered but the atmosphere remains effortless.
+              {aboutData?.origin.body2}
             </p>
           </motion.div>
           <div className="order-1 md:order-2 aspect-[4/5]">
             <ResponsiveImage 
-              src="/media/about/about-origin.jpg" 
-              alt="GEMA branded tableware detail"
+              src={pageMedia?.about.originImage.src || ''} 
+              alt={pageMedia?.about.originImage.alt || 'GEMA branded tableware detail'}
               maskReveal
               priority
             />
@@ -61,8 +72,8 @@ export default function AboutClient({ locale }: AboutClientProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 items-center mb-32">
           <div className="aspect-square">
             <ResponsiveImage 
-              src="/media/about/about-philosophy.jpg" 
-              alt="Culinary spices and aromatics"
+              src={pageMedia?.about.philosophyImage.src || ''} 
+              alt={pageMedia?.about.philosophyImage.alt || 'Culinary spices and aromatics'}
               maskReveal
             />
           </div>
@@ -71,12 +82,14 @@ export default function AboutClient({ locale }: AboutClientProps) {
              whileInView={{ opacity: 1, y: 0 }}
              viewport={{ once: true, margin: "-10%" }}
           >
-            <h2 className="font-serif text-3xl md:text-5xl text-[var(--espresso-900)] mb-6">The Philosophy</h2>
+            <h2 className="font-serif text-3xl md:text-5xl text-[var(--espresso-900)] mb-6">
+              {aboutData?.philosophy.title}
+            </h2>
             <p className="text-[var(--muted)] mb-6 leading-relaxed">
-              Our kitchen operates on a simple principle: respect the ingredient. By combining classic Italian techniques with the finest available produce, we craft dishes that are comforting yet refined.
+              {aboutData?.philosophy.body1}
             </p>
             <p className="text-[var(--muted)] leading-relaxed">
-              We adhere to a strict No Pork, No Lard policy, ensuring our culinary vision is accessible and respectful of our diverse community without ever compromising on flavor or technique.
+              {dietarySentence}
             </p>
           </motion.div>
         </div>
@@ -89,18 +102,20 @@ export default function AboutClient({ locale }: AboutClientProps) {
              viewport={{ once: true, margin: "-10%" }}
              className="order-2 md:order-1"
           >
-            <h2 className="font-serif text-3xl md:text-5xl mb-6">The Architecture</h2>
+            <h2 className="font-serif text-3xl md:text-5xl mb-6">
+              {aboutData?.architecture.title}
+            </h2>
             <p className="text-[var(--ivory-200)] mb-6 leading-relaxed">
-              Housed in a thoughtfully restored building on Jl. Musi, the architecture of GEMA balances classical proportions with modern restraint. 
+              {aboutData?.architecture.body1}
             </p>
             <p className="text-[var(--ivory-200)] leading-relaxed">
-              Warm ivory tones, rich espresso wood, and strategic lighting create a canvas that shifts throughout the day, offering a different mood for a sunlit lunch versus an intimate evening dinner.
+              {aboutData?.architecture.body2}
             </p>
           </motion.div>
           <div className="order-1 md:order-2 aspect-[3/4]">
             <ResponsiveImage 
-              src="/media/about/about-architecture.jpg" 
-              alt="GEMA interior architecture"
+              src={pageMedia?.about.architectureImage.src || ''} 
+              alt={pageMedia?.about.architectureImage.alt || 'GEMA interior architecture'}
             />
           </div>
         </div>
@@ -109,3 +124,4 @@ export default function AboutClient({ locale }: AboutClientProps) {
     </PageReveal>
   );
 }
+

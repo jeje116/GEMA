@@ -7,17 +7,40 @@ import Image from 'next/image';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
-import { homeAssets } from '@/content/media/homeAssets';
 import { audioManager } from '@/lib/audioManager';
+import { ChefMediaData } from '@/content/provider';
 
-export default function ChefPreview({ locale }: { locale: Locale }) {
+interface ChefPreviewProps {
+  locale: Locale;
+  chefMedia?: ChefMediaData | null;
+  chefPreviewData?: {
+    text?: string;
+    ctaLabel?: string;
+  };
+}
+
+const CHEF_VIDEO_VOLUME = 0.5;
+
+export default function ChefPreview({ locale, chefMedia, chefPreviewData }: ChefPreviewProps) {
   const { t } = getDictionary(locale);
+  const text = chefPreviewData?.text || t('home.chef.text');
+  const ctaLabel = chefPreviewData?.ctaLabel || t('home.chef.cta');
   const prefersReduced = useReducedMotionSafe();
   const containerRef = useRef<HTMLElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isChefActive, setIsChefActive] = useState(false);
+
+  const videoSrc = chefMedia?.video.src || '';
+  const videoPoster = chefMedia?.video.poster || '';
+
+  React.useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') {
+      if (!videoSrc) console.error('[ChefPreview Error] Missing CMS videoFile from Chef Global.');
+      if (!videoPoster) console.error('[ChefPreview Error] Missing CMS videoPoster from Chef Global.');
+    }
+  }, [videoSrc, videoPoster]);
 
   // Scroll saturation effect for desktop
   const { scrollYProgress } = useScroll({
@@ -118,14 +141,14 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
 
   // Lifecycle control for video playback & unmuted audio when active in viewport
   useEffect(() => {
-    if (!homeAssets.chefVideo.src || !videoRef.current) return;
+    if (!videoSrc || !videoRef.current) return;
     const video = videoRef.current;
 
     if (isChefActive) {
-      // RULE 1 & 4: Whenever Chef media is ACTIVE, Chef video MUST play UNMUTED with audible volume (1.0),
+      // RULE 1 & 4: Whenever Chef media is ACTIVE, Chef video MUST play UNMUTED with audible volume (0.5),
       // regardless of whether ambient backsound was ON or OFF.
       video.muted = false;
-      video.volume = 1.0;
+      video.volume = CHEF_VIDEO_VOLUME;
       video.play().catch((err) => {
         // Catch browser autoplay policy rejection if no prior user interaction
         console.warn('Chef video unmuted autoplay policy rejection:', err);
@@ -162,7 +185,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                 viewport={{ once: true, margin: '-10%' }}
                 className="font-serif text-3xl md:text-5xl leading-tight mb-8"
               >
-                {t('home.chef.text')}
+                {text}
               </motion.h2>
               <motion.div
                 initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
@@ -174,7 +197,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                   href={`/${locale}/chef/mandif-warokka`} 
                   className="px-8 py-3 border border-[var(--white)] text-[var(--white)] font-condensed tracking-widest uppercase text-sm hover:bg-[var(--white)] hover:text-[var(--ink)] transition-colors inline-block"
                 >
-                  {t('home.chef.cta')}
+                  {ctaLabel}
                 </Link>
               </motion.div>
             </div>
@@ -202,7 +225,7 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                   const video = videoRef.current;
                   if (video && video.muted) {
                     video.muted = false;
-                    video.volume = 1.0;
+                    video.volume = CHEF_VIDEO_VOLUME;
                   }
                 }}
               >
@@ -238,12 +261,12 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                       : {}),
                   }}
                 >
-                  {homeAssets.chefVideo.src ? (
+                  {videoSrc ? (
                     <>
                       <video
                         ref={videoRef}
-                        src={homeAssets.chefVideo.src}
-                        poster={homeAssets.chefVideo.poster}
+                        src={videoSrc}
+                        poster={videoPoster}
                         playsInline
                         loop
                         preload="metadata"
@@ -253,29 +276,30 @@ export default function ChefPreview({ locale }: { locale: Locale }) {
                         }`}
                         aria-label="Chef Mandif Warokka culinary vision"
                       />
-                      {!isVideoReady && (
+                      {!isVideoReady && videoPoster && (
                         <div className="absolute inset-0">
                           <Image
-                            src={homeAssets.chefVideo.poster}
+                            src={videoPoster}
                             alt="Chef Mandif Warokka"
                             fill
-                            sizes="(max-width: 1024px) 100vw, 50vw"
+                            sizes="(max-width: 768px) 100vw, 400px"
                             className="object-cover object-center"
-                            priority={false}
+                            priority
                           />
                         </div>
                       )}
                     </>
-                  ) : (
-                    /* Staging Fallback: Displays verified chef reel poster while external Drive direct streaming is blocked */
+                  ) : videoPoster ? (
                     <Image
-                      src={homeAssets.chefVideo.poster}
+                      src={videoPoster}
                       alt="Chef Mandif Warokka"
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover object-center"
                       priority={false}
                     />
+                  ) : (
+                    <div className="w-full h-full bg-[#1a1310] flex items-center justify-center opacity-30" aria-hidden="true" />
                   )}
                 </div>
               </motion.div>

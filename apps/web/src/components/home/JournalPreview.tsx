@@ -7,26 +7,37 @@ import Image from 'next/image';
 import { Locale } from '@/i18n/config';
 import { getDictionary, l } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
-import { journalEntries } from '@/content/fixtures/journal';
+import { JournalEntry } from '@/content/types';
 
-export default function JournalPreview({ locale }: { locale: Locale }) {
+interface JournalPreviewProps {
+  locale: Locale;
+  entries?: JournalEntry[];
+  journalIntroData?: {
+    title?: string;
+    ctaLabel?: string;
+  };
+}
+
+export default function JournalPreview({ locale, entries: propEntries, journalIntroData }: JournalPreviewProps) {
   const { t } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
 
-  const previewEntries = journalEntries.slice(0, 3);
+  const previewEntries = (propEntries || []).slice(0, 3);
+  const title = journalIntroData?.title || t('home.journal.title');
+  const ctaLabel = journalIntroData?.ctaLabel || (locale === 'id' ? 'Lihat Jurnal' : 'View Journal');
 
   return (
     <section className="py-24 md:py-32 bg-[var(--white)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-16">
           <h2 className="font-serif text-3xl md:text-5xl text-[var(--espresso-900)]">
-            {t('home.journal.title')}
+            {title}
           </h2>
           <Link 
             href={`/${locale}/journal`}
             className="font-condensed tracking-widest text-xs uppercase hover:text-[var(--terracotta)] transition-colors border-b border-transparent hover:border-[var(--terracotta)] pb-1 hidden md:block"
           >
-            {locale === 'id' ? 'Lihat Jurnal' : 'View Journal'}
+            {ctaLabel}
           </Link>
         </div>
 
@@ -66,7 +77,7 @@ export default function JournalPreview({ locale }: { locale: Locale }) {
             href={`/${locale}/journal`}
             className="font-condensed tracking-widest text-xs uppercase hover:text-[var(--terracotta)] transition-colors border-b border-transparent hover:border-[var(--terracotta)] pb-1"
           >
-            {locale === 'id' ? 'Lihat Jurnal' : 'View Journal'}
+            {ctaLabel}
           </Link>
         </div>
       </div>

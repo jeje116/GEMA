@@ -7,19 +7,25 @@ import PageReveal from '@/components/motion/PageReveal';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import { cn } from '@/lib/utils';
 import ResponsiveImage from '@/components/media/ResponsiveImage';
-import { menuAssets } from '@/content/media/menuAssets';
 import { MenuCategory, MenuItem } from '@/content/types';
 import { Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
+import { PageMediaData } from '@/content/provider';
 
 interface MenuClientProps {
   locale: Locale;
   categories: MenuCategory[];
   items: MenuItem[];
+  pageMedia?: PageMediaData | null;
+  menuPageData?: {
+    title: string;
+    philosophy?: string;
+    taxServiceFootnote?: string;
+  } | null;
 }
 
 
-export default function MenuClient({ locale, categories, items }: MenuClientProps) {
+export default function MenuClient({ locale, categories, items, pageMedia, menuPageData }: MenuClientProps) {
   const { t, l } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -146,27 +152,22 @@ export default function MenuClient({ locale, categories, items }: MenuClientProp
     currentCategories.find((c) => c.id === activeCategoryId) || currentCategories[0];
   const activeCategoryName = activeCategory ? l(activeCategory.name) : '';
 
+  const menuTitle = menuPageData?.title || t('menu.title');
+  const menuPhilosophy = menuPageData?.philosophy || t('menu.philosophy');
+  const menuTaxService = menuPageData?.taxServiceFootnote || t('menu.taxService');
+
   return (
-    <PageReveal title={t('menu.title')} className="bg-[var(--ivory-50)] min-h-screen pt-32 pb-24">
+    <PageReveal title={menuTitle} className="bg-[var(--ivory-50)] min-h-screen pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16 gap-8">
           <div>
             <h1 className="font-serif text-5xl md:text-7xl text-[var(--espresso-900)] mb-4">
-              {t('menu.title')}
+              {menuTitle}
             </h1>
             <p className="text-[var(--muted)] max-w-md">
-              {t('menu.philosophy')}
+              {menuPhilosophy}
             </p>
-          </div>
-
-          <div className="flex items-center gap-6">
-            {activeType === 'food' && (
-              <div className="flex items-center gap-2 text-xs font-condensed tracking-widest uppercase text-[var(--muted)]">
-                <span className="block w-2 h-2 rounded-full bg-[var(--terracotta)]" />
-                {t('menu.signature')}
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -184,9 +185,17 @@ export default function MenuClient({ locale, categories, items }: MenuClientProp
               className="absolute inset-0"
             >
               <ResponsiveImage
-                src={menuAssets[activeType].src}
-                alt={menuAssets[activeType].alt[locale]}
-                imgClassName={menuAssets[activeType].objectPosition}
+                src={
+                  activeType === 'food'
+                    ? pageMedia?.menu.foodImage.src || ''
+                    : pageMedia?.menu.beverageImage.src || ''
+                }
+                alt={
+                  activeType === 'food'
+                    ? pageMedia?.menu.foodImage.alt || (locale === 'id' ? 'Pilihan hidangan yang disajikan di GEMA' : 'A selection of dishes served at GEMA')
+                    : pageMedia?.menu.beverageImage.alt || (locale === 'id' ? 'Koktail sedang disiapkan di GEMA' : 'A cocktail being prepared at GEMA')
+                }
+                imgClassName="object-center"
                 priority
               />
             </motion.div>
@@ -338,7 +347,7 @@ export default function MenuClient({ locale, categories, items }: MenuClientProp
           <div className="mt-24 pt-12 pb-8 flex flex-col items-center justify-center text-center">
             <div className="w-24 h-[1px] bg-[var(--espresso-900)]/20 mb-4" aria-hidden="true" />
             <p className="font-serif italic text-xs text-[var(--muted)] max-w-md leading-relaxed">
-              {t('menu.taxService')}
+              {menuTaxService}
             </p>
           </div>
         </div>
@@ -592,12 +601,6 @@ function MenuItemRow({
               <span className="font-serif italic text-xs text-[var(--muted)] font-normal">
                 ({item.portion})
               </span>
-            )}
-            {item.signature && (
-              <span
-                className="w-1.5 h-1.5 rounded-full bg-[var(--terracotta)] flex-shrink-0 self-center"
-                title="Signature Dish"
-              />
             )}
           </h3>
         </div>

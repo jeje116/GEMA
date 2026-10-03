@@ -3,85 +3,114 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import { Locale } from '@/i18n/config';
-import { getDictionary } from '@/i18n/getDictionary';
 import { useReducedMotionSafe } from '@/hooks/useReducedMotionSafe';
 import { useUI } from '@/components/shared/UIContext';
 import { cn } from '@/lib/utils';
 import { audioManager } from '@/lib/audioManager';
 
-type GatewayState = 'loading' | 'ready' | 'idle' | 'exiting' | 'entered';
+import type { SplashConfig } from '@/lib/splashConfig';
 
-export default function GatewayExperience({ locale }: { locale: Locale }) {
+type GatewayState = 'loading' | 'ready' | 'idle' | 'entered';
+
+// Visual Oracle Reference Images (Posters & Fallbacks)
+const DESKTOP_REF_IMAGE = '/media/splash/desktop-ref.png';
+const MOBILE_REF_IMAGE = '/media/splash/mobile-ref.png';
+
+export default function GatewayExperience({
+  locale,
+  splashConfig,
+}: {
+  locale: Locale;
+  splashConfig?: SplashConfig;
+}) {
   const [state, setState] = useState<GatewayState>('loading');
   const pathname = usePathname();
-  const { t } = getDictionary(locale);
   const prefersReduced = useReducedMotionSafe();
   const isMounted = useRef(true);
+  const previousScrollRestorationRef = useRef<ScrollRestoration | null>(null);
   const { isGatewayEntered, setGatewayEntered } = useUI();
 
-  const isHomePage = pathname === `/${locale}` || pathname === '/' || pathname === `/${locale}/`;
+  // Responsive & client hydration state
+  const [isClientMounted, setIsClientMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Determine if it should show
+  const isHomepage = pathname === '/' || pathname === `/${locale}` || pathname === `/${locale}/` || pathname === '/en' || pathname === '/id';
+
+  // Responsive breakpoint tracking and client initialization
+  useEffect(() => {
+    const checkViewport = () => {
+      const isMob = window.innerWidth < 768;
+      setIsMobile(isMob);
+    };
+    checkViewport();
+    setIsClientMounted(true);
+
+    window.addEventListener('resize', checkViewport);
+    return () => window.removeEventListener('resize', checkViewport);
+  }, []);
+
+  // Determine gateway appearance & scroll preservation
   useEffect(() => {
     isMounted.current = true;
     
-    // Prime audio element in background so it is ready for instant user gesture playback
+    // Prime audio element in background for user gesture
     audioManager.getOrCreateAudio();
 
-    // Check sessionStorage
-    let alreadySeen = false;
-    try {
-      alreadySeen = sessionStorage.getItem('gema_gateway_seen') === 'true';
-    } catch {
-      // Ignore
-    }
-
-    if (alreadySeen || isGatewayEntered || !isHomePage) {
+    if (isGatewayEntered) {
       setState('entered');
-      if (!isGatewayEntered) {
-        setGatewayEntered();
-      }
     } else {
       setState('loading');
       document.body.style.overflow = 'hidden';
+
+      // Scope scroll normalization strictly to Homepage full document entrance
+      if (isHomepage) {
+        if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+          previousScrollRestorationRef.current = window.history.scrollRestoration;
+          window.history.scrollRestoration = 'manual';
+        }
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
     }
 
     return () => {
       isMounted.current = false;
       document.body.style.overflow = '';
-    };
-  }, [pathname, isGatewayEntered, isHomePage, setGatewayEntered]);
-
-  // Sequence orchestration
-  useEffect(() => {
-    if (state !== 'loading' || prefersReduced) {
-      if (state === 'loading' && prefersReduced) {
-        setState('idle');
+      if (isHomepage && previousScrollRestorationRef.current && typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+        window.history.scrollRestoration = previousScrollRestorationRef.current;
       }
+    };
+  }, [isGatewayEntered, isHomepage]);
+
+  // Handle timeout fallback if video doesn't play within 4s
+  useEffect(() => {
+    if (prefersReduced) {
+      setVideoError(true);
       return;
     }
 
     const timer = setTimeout(() => {
-      if (isMounted.current && state === 'loading') {
-        setState('idle');
+      if (isMounted.current && !videoLoaded) {
+        setVideoError(true);
       }
-    }, 2800);
+    }, 4000);
 
     return () => clearTimeout(timer);
-  }, [state, prefersReduced]);
+  }, [videoLoaded, prefersReduced]);
 
   const handleEnter = () => {
     if (state === 'entered') return;
 
-    try {
-      sessionStorage.setItem('gema_gateway_seen', 'true');
-    } catch {
-      // Ignore
-    }
-
     // Gateway interaction satisfies browser user-gesture requirement: immediately start ambient audio
     audioManager.startFromUserGesture();
+
+    if (isHomepage) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
 
     setState('entered');
     setGatewayEntered();
@@ -91,7 +120,7 @@ export default function GatewayExperience({ locale }: { locale: Locale }) {
       if (isMounted.current) {
         const main = document.getElementById('main-content');
         if (main) {
-          main.focus();
+          main.focus({ preventScroll: true });
         }
       }
     }, 600);
@@ -104,8 +133,23 @@ export default function GatewayExperience({ locale }: { locale: Locale }) {
     }
   };
 
+  const currentPoster = isMobile ? MOBILE_REF_IMAGE : DESKTOP_REF_IMAGE;
+  const desktopVideoUrl = splashConfig?.desktopVideoUrl ?? null;
+  const mobileVideoUrl = splashConfig?.mobileVideoUrl ?? null;
+  const currentVideoUrl = isMobile ? mobileVideoUrl : desktopVideoUrl;
+
+  // The fallback image already embeds the complete visual typography oracle.
+  // When video plays (living scene), the DOM overlay renders the typography on top of the textless video.
+  const showDomOverlay = videoLoaded && !videoError;
+
   return (
-    <AnimatePresence>
+    <AnimatePresence
+      onExitComplete={() => {
+        if (isHomepage && previousScrollRestorationRef.current && typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+          window.history.scrollRestoration = previousScrollRestorationRef.current;
+        }
+      }}
+    >
       {state !== 'entered' && (
         <motion.button
           type="button"
@@ -118,88 +162,249 @@ export default function GatewayExperience({ locale }: { locale: Locale }) {
             opacity: 0,
             y: '-100%',
           }}
-          transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
+          transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
           className={cn(
-            'fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--ivory-50)] cursor-pointer outline-none border-none',
+            'fixed inset-0 z-50 flex items-center justify-center bg-[#F6F1EA] cursor-pointer outline-none border-none overflow-hidden select-none',
             'focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-focus'
           )}
         >
-          <div className="relative flex flex-col items-center w-full max-w-4xl px-4 pointer-events-none">
-            {/* Wordmark (0-1200ms) */}
-            <motion.div
-              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: prefersReduced ? 0 : 0.2, duration: 1, ease: 'easeOut' }}
-              className="mb-8 md:mb-12"
-            >
-              <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl tracking-wide text-[#24150f] font-medium text-center">
-                GEMA
-              </h1>
-              <p className="font-condensed tracking-[0.2em] text-xs md:text-sm text-[#352018] mt-2 uppercase text-center">
-                Restaurant & Societiet
-              </p>
-            </motion.div>
-
-            {/* Line Art Scene (700-2200ms) */}
-            <motion.div
-              className="w-full max-w-2xl aspect-video relative flex items-center justify-center"
-              initial={prefersReduced ? { opacity: 1 } : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: prefersReduced ? 0 : 0.7, duration: 1.5 }}
-            >
-              <svg viewBox="0 0 800 450" fill="none" stroke="#000000" strokeWidth="1.5" className="w-full h-full">
-                <motion.path
-                  initial={prefersReduced ? { pathLength: 1 } : { pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ delay: prefersReduced ? 0 : 0.7, duration: 1.2, ease: 'easeInOut' }}
-                  d="M100,400 L100,200 A150,150 0 0,1 400,200 L400,400 M500,400 L500,250 A100,100 0 0,1 700,250 L700,400"
-                />
-                <motion.path
-                  initial={prefersReduced ? { pathLength: 1 } : { pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ delay: prefersReduced ? 0 : 1.0, duration: 1 }}
-                  d="M200,320 L750,320 L750,380 L200,380 Z M250,320 L250,280"
-                />
-                <motion.path
-                  initial={prefersReduced ? { pathLength: 1 } : { pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ delay: prefersReduced ? 0 : 1.2, duration: 1 }}
-                  d="M150,50 L150,150 M300,30 L300,120 M600,40 L600,140 M550,140 A20,20 0 1,1 590,140 M140,150 A10,10 0 1,1 160,150"
-                />
-                <motion.path
-                  initial={prefersReduced ? { opacity: 1 } : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: prefersReduced ? 0 : 1.5, duration: 1 }}
-                  d="M280,250 Q285,220 290,250 L285,320 M290,250 L310,270"
-                  strokeWidth="2"
-                />
-                <motion.path
-                  initial={prefersReduced ? { opacity: 1 } : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: prefersReduced ? 0 : 1.8, duration: 1 }}
-                  d="M450,280 Q455,250 460,280 L455,380 M520,290 Q525,260 530,290 L525,380"
-                  strokeWidth="1.5"
-                />
-              </svg>
-            </motion.div>
-
-            {/* Enter Instruction (1800ms+) */}
-            <motion.div
-              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: prefersReduced ? 0 : 1.8, duration: 1 }}
-              className="mt-12 text-[#756d64] font-condensed tracking-widest text-sm uppercase flex flex-col items-center gap-2"
-            >
-              <span className="hidden sm:inline">{t('gateway.enter.pointer')}</span>
-              <span className="sm:hidden">{t('gateway.enter.touch')}</span>
-              {!prefersReduced && (
-                <motion.div
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-                  className="w-1.5 h-1.5 rounded-full bg-[#756d64] mt-2"
-                />
+          {/* ========================================================= */}
+          {/* 1. LIVING BACKGROUND / VIDEO / VISUAL FALLBACK LAYER       */}
+          {/* Always FULLSCREEN (100vw x 100dvh, object-cover, no letterbox) */}
+          {/* ========================================================= */}
+          <div data-splash-element="media-layer" className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+            {/* Visual Oracle Poster / Fallback Image */}
+            <img
+              data-splash-element="poster-fallback"
+              src={currentPoster}
+              alt="GEMA Gateway Visual Oracle"
+              className={cn(
+                'absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000',
+                videoLoaded && !videoError ? 'opacity-0' : 'opacity-100'
               )}
-            </motion.div>
+            />
+
+            {/* Same-Origin Local Video Stream (rendered strictly when database-configured path exists) */}
+            {isClientMounted && !prefersReduced && !videoError && !!currentVideoUrl && (
+              <video
+                data-splash-element="video-stream"
+                ref={videoRef}
+                key={isMobile ? 'mobile-video' : 'desktop-video'}
+                src={currentVideoUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                onPlaying={() => setVideoLoaded(true)}
+                onError={() => setVideoError(true)}
+                className={cn(
+                  'absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000',
+                  videoLoaded ? 'opacity-100' : 'opacity-0'
+                )}
+              />
+            )}
+          </div>
+
+          {/* ========================================================= */}
+          {/* 2. ACCESSIBLE TEXT LANDMARKS (Always present in DOM)      */}
+          {/* ========================================================= */}
+          <div className="sr-only">
+            <h1>Gema Restaurant &amp; Societiet</h1>
+            <p>CUCINA &bull; BUONA COMPAGNIA &bull; BELLA VITA</p>
+            <p>ITALIAN FOOD BRINGS PEOPLE TOGETHER</p>
+            <p>Welcome. GOOD FOOD. BRIGHTER DAYS.</p>
+            <p>EST. 2025</p>
+            <p>A TASTE OF ITALY ALWAYS</p>
+          </div>
+
+          {/* ========================================================= */}
+          {/* 3. OVERLAY LAYER — DESKTOP VIEWPORT (>= 768px landscape) */}
+          {/* ========================================================= */}
+          <div
+            className={cn(
+              'hidden md:block absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-700 z-10',
+              showDomOverlay ? 'opacity-100' : 'opacity-0'
+            )}
+          >
+            {/* Aspect container matching the 1672x941 desktop oracle */}
+            <div className="relative w-full h-full max-w-[178vh] mx-auto overflow-hidden">
+              {/* Top Motto Bar (oracle center_y ~ 6.8%) */}
+              <div data-splash-element="motto" className="absolute top-[6.8%] left-0 right-0 text-center">
+                <p className="font-condensed text-xs lg:text-sm tracking-[0.35em] text-[#6b5743] uppercase font-normal">
+                  CUCINA &nbsp;&bull;&nbsp; BUONA COMPAGNIA &nbsp;&bull;&nbsp; BELLA VITA
+                </p>
+              </div>
+
+              {/* Gema Brand Logo (oracle center_y ~ 25.4%) */}
+              <div data-splash-element="logo" className="absolute top-[13.5%] left-1/2 -translate-x-1/2 w-72 lg:w-84 h-36 lg:h-40">
+                <Image
+                  src="/media/splash/gema-dark.png"
+                  alt="Gema restaurant & societiet"
+                  fill
+                  priority
+                  className="object-contain"
+                />
+              </div>
+
+              {/* Right-aligned motto (oracle center_y ~ 31.8%, center_x ~ 76.2%) */}
+              <div data-splash-element="italian-food" className="absolute left-[73.5%] top-[25.5%] text-left">
+                <div className="font-serif text-[11px] lg:text-xs tracking-[0.3em] text-[#6c594c] uppercase leading-[1.75] font-light">
+                  <p>ITALIAN</p>
+                  <p>FOOD</p>
+                  <p>BRINGS</p>
+                  <p>PEOPLE</p>
+                  <p>TOGETHER</p>
+                </div>
+              </div>
+
+              {/* Divider with Central Quatrefoil (oracle center_y ~ 72.4%) */}
+              <div data-splash-element="divider" className="absolute top-[71%] left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 text-[#BFA16F]">
+                <div className="h-[1px] w-28 lg:w-36 bg-[#BFA16F]/70" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" className="w-4 h-4">
+                  <path d="M 12 3 C 14.2 3 16 4.8 16 7 C 18.2 7 20 8.8 20 11 C 20 13.2 18.2 15 16 15 C 16 17.2 14.2 19 12 19 C 9.8 19 8 17.2 8 15 C 5.8 15 4 13.2 4 11 C 4 8.8 5.8 7 8 7 C 8 4.8 9.8 3 12 3 Z" />
+                </svg>
+                <div className="h-[1px] w-28 lg:w-36 bg-[#BFA16F]/70" />
+              </div>
+
+              {/* Welcome Script (rebalanced safely below divider) */}
+              <div data-splash-element="welcome" className="absolute top-[75.5%] left-1/2 -translate-x-1/2 w-52 lg:w-60 h-14 lg:h-16">
+                <Image
+                  src="/media/splash/welcome.png"
+                  alt="Welcome"
+                  fill
+                  priority
+                  className="object-contain"
+                />
+              </div>
+
+              {/* Subtitle */}
+              <div data-splash-element="good-food" className="absolute top-[84.5%] left-0 right-0 text-center">
+                <p className="font-serif text-[11px] lg:text-xs tracking-[0.35em] text-[#523d2f] uppercase font-normal">
+                  GOOD FOOD. BRIGHTER DAYS.
+                </p>
+              </div>
+
+              {/* Decorative Terminator — Short Static Gold Hairline (SPLASH-008) */}
+              <div
+                data-splash-element="accent"
+                className="absolute top-[88%] left-1/2 -translate-x-1/2 w-16 h-[1px] bg-[#BFA16F]/70"
+              />
+
+              {/* Bottom Left: EST. 2025 (SPLASH-009C: rebalanced to 5.0% for visual symmetry) */}
+              <div
+                data-splash-element="est"
+                className="splash-bottom-meta-desktop absolute left-[5.0%] flex flex-col items-start gap-1 text-[#5c493c]"
+              >
+                <span className="font-serif text-[11px] tracking-[0.25em] uppercase font-light">
+                  EST. 2025
+                </span>
+                <div className="w-8 h-[1px] bg-[#BFA16F]/70" />
+              </div>
+
+              {/* Bottom Right: A TASTE OF ITALY ALWAYS (SPLASH-009C: shifted right to 5.0% to occupy target corner area) */}
+              <div
+                data-splash-element="taste"
+                className="splash-bottom-meta-desktop absolute right-[5.0%] text-right font-serif text-[10px] lg:text-[11px] tracking-[0.25em] uppercase leading-[1.6] text-[#5c493c] font-light"
+              >
+                <p>A TASTE</p>
+                <p>OF ITALY</p>
+                <p>ALWAYS</p>
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================= */}
+          {/* 4. OVERLAY LAYER — MOBILE VIEWPORT (< 768px portrait)    */}
+          {/* Responsive Content Groups adapting to viewport aspect     */}
+          {/* ========================================================= */}
+          <div
+            className={cn(
+              'block md:hidden absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-700 z-10',
+              showDomOverlay ? 'opacity-100' : 'opacity-0'
+            )}
+          >
+            {/* GROUP A — TOP BRAND GROUP */}
+            <div
+              className="absolute left-0 right-0 flex flex-col items-center text-center select-none"
+              style={{
+                top: 'clamp(3rem, 7.5dvh, 4.5rem)',
+              }}
+            >
+              {/* Motto Bar */}
+              <p data-splash-element="motto" className="font-condensed text-[10px] tracking-[0.22em] text-[#6b5743] uppercase font-normal mb-[clamp(0.4rem,1.2dvh,0.8rem)]">
+                CUCINA &nbsp;&bull;&nbsp; BUONA COMPAGNIA &nbsp;&bull;&nbsp; BELLA VITA
+              </p>
+
+              {/* Gema Brand Logo (unclipped source asset preserved) */}
+              <div data-splash-element="logo" className="relative w-[56vw] max-w-[240px] h-[clamp(5.5rem,13dvh,8rem)] mb-[clamp(0.4rem,1.2dvh,0.8rem)]">
+                <Image
+                  src="/media/splash/gema-dark.png"
+                  alt="Gema restaurant & societiet"
+                  fill
+                  priority
+                  className="object-contain"
+                />
+              </div>
+
+              {/* Italian Food block */}
+              <div data-splash-element="italian-food" className="flex flex-col items-center gap-1.5 text-center">
+                <div className="font-serif text-[10px] tracking-[0.25em] text-[#5a4638] uppercase leading-[1.65] font-light">
+                  <p>ITALIAN FOOD</p>
+                  <p>BRINGS PEOPLE</p>
+                  <p>TOGETHER</p>
+                </div>
+                <div className="w-10 h-[1px] bg-[#BFA16F]/70 mt-0.5" />
+              </div>
+            </div>
+
+            {/* LOWER CONTENT SECTION — GROUP B (WELCOME & DECORATIVE TERMINATOR) */}
+            {/* Dynamically tracking safely below the background divider across all aspect ratios */}
+            <div
+              className="absolute left-0 right-0 flex flex-col items-center text-center select-none"
+              style={{
+                top: 'calc(max(64dvh, 50dvh + 24.8dvw) + clamp(1.2rem, 3.2dvh, 2rem))',
+              }}
+            >
+              {/* Welcome Script */}
+              <div data-splash-element="welcome" className="relative w-[38vw] max-w-[175px] h-[clamp(2.5rem,5.5dvh,3.5rem)] mb-1">
+                <Image
+                  src="/media/splash/welcome.png"
+                  alt="Welcome"
+                  fill
+                  priority
+                  className="object-contain"
+                />
+              </div>
+
+              {/* Subtitle */}
+              <p data-splash-element="good-food" className="font-serif text-[10px] tracking-[0.28em] text-[#523d2f] uppercase font-normal mb-1.5">
+                GOOD FOOD. BRIGHTER DAYS.
+              </p>
+
+              {/* Short static gold hairline terminator */}
+              <div data-splash-element="accent" className="w-16 h-[1px] bg-[#BFA16F]/70" />
+            </div>
+
+            {/* GROUP D — BOTTOM METADATA (SPLASH-009: Responsive Rebalanced) */}
+            <div
+              className="splash-bottom-meta-mobile absolute inset-x-0 bottom-0 flex items-end justify-between select-none pointer-events-none"
+            >
+              {/* Bottom Left: EST. 2025 */}
+              <div data-splash-element="est" className="flex flex-col items-start gap-1 text-[#5c493c]">
+                <span className="font-serif text-[10px] tracking-[0.22em] uppercase font-light">
+                  EST. 2025
+                </span>
+                <div className="w-7 h-[1px] bg-[#BFA16F]/70" />
+              </div>
+
+              {/* Bottom Right: A TASTE OF ITALY ALWAYS */}
+              <div data-splash-element="taste" className="text-right font-serif text-[9px] tracking-[0.22em] uppercase leading-[1.5] text-[#5c493c] font-light">
+                <p>A TASTE</p>
+                <p>OF ITALY</p>
+                <p>ALWAYS</p>
+              </div>
+            </div>
           </div>
         </motion.button>
       )}

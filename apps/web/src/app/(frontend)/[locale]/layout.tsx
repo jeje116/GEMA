@@ -12,9 +12,7 @@ import Script from 'next/script';
 import { getNavigation, getSiteData } from '@/content/provider';
 import { getSplashMediaConfig } from '@/lib/splashConfig';
 
-export function generateStaticParams() {
-  return LOCALES.map((locale) => ({ locale }));
-}
+export const dynamic = 'force-dynamic';
 
 export default async function LocaleLayout({
   children,

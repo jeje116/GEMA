@@ -5,7 +5,6 @@ import { getDictionary } from '@/i18n/getDictionary';
 import { getEvents, getEventsPageData } from '@/content/provider';
 import EventsClient from '@/components/events/EventsClient';
 
-export const revalidate = 3600; // 1-hour bounded staleness ISR window
 
 export async function generateMetadata({
   params,

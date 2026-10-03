@@ -5,22 +5,7 @@ import { getDictionary } from '@/i18n/getDictionary';
 import { getRecognitions, getRecognitionBySlug } from '@/content/provider';
 import RecognitionDetailClient from '@/components/recognition/RecognitionDetailClient';
 
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  const recognitions = await getRecognitions('en');
-  const params: { locale: string; slug: string }[] = [];
-
-  for (const locale of LOCALES) {
-    for (const rec of recognitions) {
-      if (rec.slug) {
-        params.push({ locale, slug: rec.slug });
-      }
-    }
-  }
-
-  return params;
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,

@@ -5,20 +5,7 @@ import { getDictionary } from '@/i18n/getDictionary';
 import { getEventBySlug, getEvents } from '@/content/provider';
 import EventDetailClient from '@/components/events/EventDetailClient';
 
-export const revalidate = 3600; // 1-hour bounded staleness ISR window
-
-export async function generateStaticParams() {
-  const events = await getEvents('en', { status: 'all' });
-  const params: { locale: string; slug: string }[] = [];
-
-  for (const locale of LOCALES) {
-    for (const evt of events) {
-      params.push({ locale, slug: evt.slug });
-    }
-  }
-
-  return params;
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,

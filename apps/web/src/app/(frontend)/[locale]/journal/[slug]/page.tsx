@@ -5,18 +5,7 @@ import { getDictionary } from '@/i18n/getDictionary';
 import { getJournalEntries, getJournalEntryBySlug, isJournalLocaleSubstantive } from '@/content/provider';
 import JournalDetailClient from '@/components/journal/JournalDetailClient';
 
-export async function generateStaticParams() {
-  const entries = await getJournalEntries('en');
-  const params: { locale: string; slug: string }[] = [];
-
-  for (const locale of LOCALES) {
-    for (const entry of entries) {
-      params.push({ locale, slug: entry.slug });
-    }
-  }
-
-  return params;
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
   params,

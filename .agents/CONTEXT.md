@@ -33,7 +33,7 @@ Current stack:
 - TypeScript 5.8.2
 - Payload CMS 3.90.1 (co-located in `apps/web`)
 - PostgreSQL 16 (via `@payloadcms/db-postgres` and Drizzle migrations)
-- `@payloadcms/storage-s3` (Cloudflare R2 compatible S3 storage with local filesystem fallback)
+- Local persistent filesystem media storage (`apps/web/public/media/cms/` -> host `/opt/gema/data/media/`)
 - Lexical Rich Text (`@payloadcms/richtext-lexical`)
 - Tailwind CSS v4
 - motion/react (Framer Motion)
@@ -175,8 +175,7 @@ Current active application source:
   - Draft/preview architecture (dual-auth `PREVIEW_SECRET` + authenticated `admin`/`editor` user, strict path regex)
   - Draft-aware revalidation across EN and ID routes
   - RBAC & field-level access control
-  - Local Media storage (`apps/web/public/media/cms/`)
-  - Dormant Cloudflare R2 compatibility via `@payloadcms/storage-s3`
+  - Local persistent Media storage (`apps/web/public/media/cms/` bind-mounted from `/opt/gema/data/media/` with direct Nginx public serving)
 
 - **Next Activity**:
   - CMS architecture work is COMPLETE. No further CMS architecture work is required.

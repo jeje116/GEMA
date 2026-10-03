@@ -14,7 +14,7 @@ export interface NormalizedVideo {
 
 /**
  * Normalizes a Payload Media document or relation into a standard presentation object.
- * Seamlessly supports both local filesystem paths (/media/cms/...) and future absolute R2 URLs.
+ * Seamlessly supports both local/relative filesystem paths (/api/media/file/...) and absolute URLs.
  * Payload CMS is the sole runtime source of truth; no static fallback paths are accepted.
  */
 export function resolveMedia(

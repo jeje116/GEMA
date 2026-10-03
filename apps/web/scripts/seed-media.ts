@@ -367,20 +367,11 @@ async function runSeed() {
       fileBuffer = Buffer.from(arrayBuffer);
     }
 
-    // Save to CMS directory (local development fallback only)
-    const isR2Configured = Boolean(
-      process.env.R2_BUCKET &&
-      process.env.R2_ENDPOINT &&
-      process.env.R2_ACCESS_KEY_ID &&
-      process.env.R2_SECRET_ACCESS_KEY &&
-      process.env.R2_PUBLIC_URL
-    );
-    if (!isR2Configured) {
-      const targetFilePath = path.resolve(cmsMediaDir, asset.filename);
-      fs.writeFileSync(targetFilePath, fileBuffer);
-    }
+    // Save to CMS directory
+    const targetFilePath = path.resolve(cmsMediaDir, asset.filename);
+    fs.writeFileSync(targetFilePath, fileBuffer);
 
-    // Create Media record in Payload (uploads to R2 if configured, else saves to staticDir)
+    // Create Media record in Payload
     const createdMedia = await payload.create({
       collection: 'media',
       data: {

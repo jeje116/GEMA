@@ -53,29 +53,79 @@ npm run dev:https
 | `PAYLOAD_SECRET` | Min 32-character secret for Payload JWT session encryption | Required |
 | `NEXT_PUBLIC_SERVER_URL` | Public origin URL (e.g. `http://localhost:3001` or `https://gemagroup.id`) | Required |
 | `PREVIEW_SECRET` | Server-only secret for Next.js Draft Mode preview security | Required |
-| `R2_BUCKET` | Cloudflare R2 bucket name | Production |
-| `R2_ENDPOINT` | Cloudflare R2 S3 endpoint (`https://<account-id>.r2.cloudflarestorage.com`) | Production |
-| `R2_ACCESS_KEY_ID` | Cloudflare R2 S3 API access key | Production |
-| `R2_SECRET_ACCESS_KEY` | Cloudflare R2 S3 API secret key | Production |
-| `R2_PUBLIC_URL` | Public media CDN URL (e.g. `https://media.gemagroup.id`) | Production |
 
-*Note: If any `R2_*` variable is set, all 5 R2 variables must be set (atomic configuration).*
+*Note: Zero external object storage (R2/S3) credentials are required. Media is stored on the persistent local filesystem.*
 
 ---
 
-## 4. Media Storage Architecture
+## 4. Production Media Architecture
 
-- **Local Development**: When R2 variables are omitted, Payload automatically falls back to local filesystem storage in `apps/web/public/media/cms/`.
-- **Production VPS**: **Stateless Web Container.** All mutable CMS uploads are routed directly to **Cloudflare R2** via `@payloadcms/storage-s3`. Local filesystem storage is disabled in production (`disableLocalStorage: true`). No persistent volume is required for media uploads.
-- **R2 Migration Utility**: To migrate local media assets to Cloudflare R2:
-  ```bash
-  cd apps/web
-  npx tsx --env-file=.env scripts/migrate-media-to-r2.ts
+The production deployment uses a simple, resilient, and cost-effective local persistence model on the Hostinger VPS:
+
+```text
+Browser
+   ↓
+Nginx
+   ├── Public Media Request (/api/media/file/...)
+   │       ↓ (direct static disk delivery)
+   │  /opt/gema/data/media/
+   │
+   └── Application / API / Admin Request
+           ↓ (reverse proxy)
+      Next.js + Payload Container
+           ↓ (bind mount)
+      /app/public/media/cms/ ──> /opt/gema/data/media/
+```
+
+- **PostgreSQL**: Stores structured CMS document metadata, relations, and portable media references (e.g. filename, MIME type, dimensions). No host absolute paths are persisted in database records.
+- **Host Persistent Directory (`/opt/gema/data/media/`)**: Stores binary CMS files outside the Git application source tree.
+- **Docker Bind Mount**: The web container mounts `/opt/gema/data/media/` to `/app/public/media/cms/`. Containers remain completely disposable.
+- **Payload Mutation Ownership**: Payload CMS retains full ownership of media mutations (upload, replacement, deletion, metadata, Admin UI) via Next.js `/api/media` endpoints, writing directly through the bind mount.
+- **Nginx Direct Public Media Delivery**: Nginx directly serves GET requests for public CMS media:
+  ```nginx
+  location ^~ /api/media/file/ {
+      alias /opt/gema/data/media/;
+      access_log off;
+      expires 1h;
+  }
   ```
+  - Direct static file mapping without routing bytes through Node.js; missing files naturally return 404.
+  - Safe because all current GEMA CMS media are public restaurant/editorial website assets (`access.read: () => true`).
+  - Standard static delivery with HTTP byte-range support handles MP4 video seeking out of the box (no `ngx_http_mp4_module` or streaming module required).
+  - Conservative initial cache policy of 1 hour without `immutable`, accommodating editorial replacements until production asset versioning is observed.
+- **Filesystem Permissions Model**:
+  - Principle of least privilege: directories `755`, regular files `644`. No `chmod 777`.
+    ```bash
+    find /opt/gema/data/media -type d -exec chmod 755 {} +
+    find /opt/gema/data/media -type f -exec chmod 644 {} +
+    ```
+  - Payload web process requires READ + WRITE; Host Nginx requires READ ONLY.
+  - Host ownership assignment (`chown`) is deferred until the production Dockerfile is finalized and its container runtime UID/GID is authoritatively known.
+- **First Deployment Bootstrap**: Initial canonical media files in `apps/web/public/media/cms/` are copied to `/opt/gema/data/media/` before the container bind mount is activated to prevent masking image layer contents. Subsequent CMS uploads persist across container rebuilds and Git updates.
 
 ---
 
-## 5. Database & Content Management
+## 5. Operations, Backups & Disk Capacity
+
+### Backup Principle
+> **Persistent storage ≠ backup.**
+
+Host persistence ensures container restarts do not discard uploads, but it does not protect against VPS failure, disk corruption, or accidental deletion. Production operations must maintain:
+1. Automated daily PostgreSQL database dumps (`pg_dump`).
+2. Regular file archive backups of `/opt/gema/data/media/`.
+3. Independent off-server or Hostinger cloud snapshots.
+4. Periodic restore verification rehearsals.
+
+### Disk-Capacity Operational Guidelines
+The VPS maintains approximately 100 GB storage. Monitor disk usage via standard operational thresholds:
+- **`< 70%`**: Normal operation.
+- **`70% – 80%`**: Investigate growth patterns and prune obsolete files/backups.
+- **`80% – 90%`**: Capacity planning required; expand disk volume.
+- **`> 90%`**: Urgent; immediate action required to prevent database or write failures.
+
+---
+
+## 6. Database & Content Management
 
 - **Migrations**: Automatic schema pushes are disabled (`push: false`). Database schemas are managed strictly through Drizzle/Payload migrations in `apps/web/src/migrations/`:
   ```bash
@@ -89,7 +139,7 @@ npm run dev:https
 
 ---
 
-## 6. Build & Production Commands
+## 7. Build & Production Commands
 
 ```bash
 cd apps/web

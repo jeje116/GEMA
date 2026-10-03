@@ -27,6 +27,8 @@ import { RecognitionPage } from './globals/RecognitionPage';
 import { EventsPage } from './globals/EventsPage';
 import { JournalPage } from './globals/JournalPage';
 
+import { migrations } from './migrations';
+
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
@@ -80,6 +82,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI || '',
     },
     push: false,
+    prodMigrations: migrations,
   }),
 });
 

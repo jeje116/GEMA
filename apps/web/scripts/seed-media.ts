@@ -21,7 +21,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.hero.open-kitchen',
     sourceType: 'local',
-    source: 'media/hero/home-hero-open-kitchen.jpg',
+    source: 'media/cms/home-hero-open-kitchen.jpg',
     filename: 'home-hero-open-kitchen.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA Open Kitchen' },
@@ -29,7 +29,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.teaser.antipasti',
     sourceType: 'local',
-    source: 'media/teaser/home-menu-teaser-antipasti.jpg',
+    source: 'media/cms/home-menu-teaser-antipasti.jpg',
     filename: 'home-menu-teaser-antipasti.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA Antipasti — Crispy Fritto Misto' },
@@ -37,7 +37,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.teaser.pasta',
     sourceType: 'local',
-    source: 'media/teaser/home-menu-teaser-pasta.jpg',
+    source: 'media/cms/home-menu-teaser-pasta.jpg',
     filename: 'home-menu-teaser-pasta.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA Pasta — Fresh Spaghetti Sauté Plating' },
@@ -45,7 +45,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.teaser.grill',
     sourceType: 'local',
-    source: 'media/teaser/home-menu-teaser-grill.jpg',
+    source: 'media/cms/home-menu-teaser-grill.jpg',
     filename: 'home-menu-teaser-grill.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA Woodfire & Grill — Sliced Grilled Wagyu Steak' },
@@ -53,7 +53,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.teaser.dolci',
     sourceType: 'local',
-    source: 'media/teaser/home-menu-teaser-dolci.jpg',
+    source: 'media/cms/home-menu-teaser-dolci.jpg',
     filename: 'home-menu-teaser-dolci.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA Dolci — Cocoa Dusted Signature Tiramisu' },
@@ -61,7 +61,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.signature.steak',
     sourceType: 'local',
-    source: 'media/signature/home-signature-steak.jpg',
+    source: 'media/cms/home-signature-steak.jpg',
     filename: 'home-signature-steak.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'Toploin Kiwami Eye Fillet MB9+' },
@@ -69,7 +69,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.signature.tiramisu',
     sourceType: 'local',
-    source: 'media/signature/home-signature-tiramisu.jpg',
+    source: 'media/cms/home-signature-tiramisu.jpg',
     filename: 'home-signature-tiramisu.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'Classic Tiramisu' },
@@ -77,7 +77,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.space.indoor',
     sourceType: 'local',
-    source: 'media/experience/home-experience-indoor.jpg',
+    source: 'media/cms/home-experience-indoor.jpg',
     filename: 'home-experience-indoor.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA Indoor Dining Room Architecture' },
@@ -85,7 +85,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'home.space.patio',
     sourceType: 'local',
-    source: 'media/experience/home-experience-patio.jpg',
+    source: 'media/cms/home-experience-patio.jpg',
     filename: 'home-experience-patio.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA Lush Garden Patio Dining' },
@@ -95,7 +95,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'chef.mandif.home-video',
     sourceType: 'local',
-    source: 'media/video/chef-home-loop.mp4',
+    source: 'media/cms/chef-home-loop.mp4',
     filename: 'chef-home-loop.mp4',
     mimetype: 'video/mp4',
     alt: { en: 'Chef Mandif Warokka culinary preparation loop' },
@@ -111,7 +111,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'chef.mandif.portrait',
     sourceType: 'local',
-    source: 'media/chef/chef-mandif-warokka.jpg',
+    source: 'media/cms/chef-mandif-warokka.jpg',
     filename: 'chef-mandif-warokka.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'Chef Mandif Warokka' },
@@ -121,7 +121,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'menu.panel.food',
     sourceType: 'local',
-    source: 'media/menu/menu-food-overview.jpg',
+    source: 'media/cms/menu-food-overview.jpg',
     filename: 'menu-food-overview.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'A selection of dishes served at GEMA', id: 'Pilihan hidangan yang disajikan di GEMA' },
@@ -129,7 +129,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'menu.panel.beverage',
     sourceType: 'local',
-    source: 'media/menu/menu-beverage-cocktail.jpg',
+    source: 'media/cms/menu-beverage-cocktail.jpg',
     filename: 'menu-beverage-cocktail.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'A cocktail being prepared at GEMA', id: 'Koktail sedang disiapkan di GEMA' },
@@ -139,7 +139,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'about.origin',
     sourceType: 'local',
-    source: 'media/about/about-origin.jpg',
+    source: 'media/cms/about-origin.jpg',
     filename: 'about-origin.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA branded tableware detail' },
@@ -147,7 +147,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'about.philosophy',
     sourceType: 'local',
-    source: 'media/about/about-philosophy.jpg',
+    source: 'media/cms/about-philosophy.jpg',
     filename: 'about-philosophy.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'Culinary spices and aromatics' },
@@ -155,7 +155,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'about.architecture',
     sourceType: 'local',
-    source: 'media/about/about-architecture.jpg',
+    source: 'media/cms/about-architecture.jpg',
     filename: 'about-architecture.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA interior architecture' },
@@ -165,7 +165,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'experience.hero',
     sourceType: 'local',
-    source: 'media/experience/experience-hero.jpg',
+    source: 'media/cms/experience-hero.jpg',
     filename: 'experience-hero.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA dining room and garden terrace' },
@@ -173,7 +173,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'experience.morning',
     sourceType: 'local',
-    source: 'media/experience/experience-day-morning.jpg',
+    source: 'media/cms/experience-day-morning.jpg',
     filename: 'experience-day-morning.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'Morning dining table at GEMA' },
@@ -189,7 +189,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'experience.details',
     sourceType: 'local',
-    source: 'media/experience/experience-culinary-details.jpg',
+    source: 'media/cms/experience-culinary-details.jpg',
     filename: 'experience-culinary-details.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA branded tableware and hospitality details' },
@@ -199,7 +199,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'occasions.hero',
     sourceType: 'local',
-    source: 'media/occasions/occasions-hero.jpg',
+    source: 'media/cms/occasions-hero.jpg',
     filename: 'occasions-hero.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA Occasions' },
@@ -207,7 +207,7 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
   {
     sourceKey: 'occasions.private-dining',
     sourceType: 'local',
-    source: 'media/occasions/occasions-private-dining.jpg',
+    source: 'media/cms/occasions-private-dining.jpg',
     filename: 'occasions-private-dining.jpg',
     mimetype: 'image/jpeg',
     alt: { en: 'Private Dinings' },
@@ -351,12 +351,17 @@ async function runSeed() {
     console.log(`→ Importing: [${asset.sourceKey}]...`);
     let fileBuffer: Buffer;
 
-    if (asset.sourceType === 'local') {
+    const targetFilePath = path.resolve(cmsMediaDir, asset.filename);
+
+    if (fs.existsSync(targetFilePath)) {
+      fileBuffer = fs.readFileSync(targetFilePath);
+    } else if (asset.sourceType === 'local') {
       const localPath = path.resolve(publicDir, asset.source);
       if (!fs.existsSync(localPath)) {
         throw new Error(`Local file not found: ${localPath}`);
       }
       fileBuffer = fs.readFileSync(localPath);
+      fs.writeFileSync(targetFilePath, fileBuffer);
     } else {
       console.log(`  Downloading remote: ${asset.source}`);
       const res = await fetch(asset.source);
@@ -365,11 +370,8 @@ async function runSeed() {
       }
       const arrayBuffer = await res.arrayBuffer();
       fileBuffer = Buffer.from(arrayBuffer);
+      fs.writeFileSync(targetFilePath, fileBuffer);
     }
-
-    // Save to CMS directory
-    const targetFilePath = path.resolve(cmsMediaDir, asset.filename);
-    fs.writeFileSync(targetFilePath, fileBuffer);
 
     // Create Media record in Payload
     const createdMedia = await payload.create({

@@ -21,6 +21,8 @@
 **/.env
 **/.env.*
 !**/.env.example
+!**/.env.production.example
+
 
 # OS metadata
 .DS_Store
@@ -32,11 +34,8 @@ Thumbs.db
 # Local media staging masters (transient source downloads)
 drive-download-*/
 
-# Root master/source media files (canonical copies live in apps/web/public/media/)
-/GEMA_brand.png
-/stillness-in-the-atrium_GEMA.mp3
-/splash-screen-desktop.mp4
-/splash-screen-mobile.mp4
+# Agent governance documentation (local-only, untracked on GitHub)
+.agents/
 
 # PDF source/reference files
 *.pdf

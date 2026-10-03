@@ -1,0 +1,46 @@
+# Git & Metadata
+.git
+.gitignore
+.dockerignore
+.agents
+archive
+apps
+reference
+gema-restaurant-&-societiet
+README.md
+CLAUDE.md
+AGENTS.md
+
+# Build output & Dependencies
+node_modules
+.next
+.next/*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documents & Legacy Configs
+*.pdf
+netlify.toml
+
+# Certificates, Keys & Secrets
+.certs
+**/certs/**
+**/certificates/**
+*.pem
+*.key
+*.crt
+.env
+.env.*
+!.env.production.example
+
+# OS / Editor Files
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+*.swp
+*.swo
+*~
+

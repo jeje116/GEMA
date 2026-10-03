@@ -7,9 +7,8 @@ Modern web application and editorial content management system for **GEMA Restau
 ## 1. Repository Architecture
 
 - **`apps/web/`**: **Authoritative Production Application.** Next.js 16 (App Router), React 19, Tailwind CSS v4, and co-located Payload CMS 3.90 backed by PostgreSQL.
-- **`apps/cms/`**: *Historical / Legacy.* Standalone Payload scaffold from early prototyping (GEMA-025); superseded by co-located `apps/web`.
-- **`.agents/`**: Repository engineering governance protocol, durable architecture decisions ([DECISIONS.md](.agents/DECISIONS.md)), verified system state ([CONTEXT.md](.agents/CONTEXT.md)), task registry ([TASKS.md](.agents/TASKS.md)), and approved implementation contracts.
-- **`archive/`**: Preserved immutable design reference materials.
+- **`compose.yaml`**: **Production Docker Compose.** Defines disposable `web` application and isolated `postgres:16-alpine` database service with named volume and media bind mounts.
+- **`.agents/`**: *Local Development Only (Untracked).* Engineering governance protocol, architectural decisions, task registry, and approved implementation plans. Excluded from GitHub tracking, Docker builds, and VPS deployments.
 
 ---
 
@@ -39,11 +38,18 @@ node --env-file=.env scripts/migrate-splash-config.cjs
 # 5. Start development server (Port 3001)
 npm run dev
 
-# Optional: Start local HTTPS reverse proxy for ResDiary widget QA (Port 3002)
+# Optional: Start local HTTPS reverse proxy for general HTTPS development (Port 3002)
 npm run dev:https
 ```
 
+> [!WARNING]
+> ### ResDiary Production Safety Warning
+> ResDiary is connected to the live production venue (`GemaSurabaya/2025`).
+> Do not submit test reservations or run live widget QA without explicit authorization.
+> Automated tests must block/mock ResDiary network requests (`https://*.resdiary.com/*`).
+
 ---
+
 
 ## 3. Environment Variables (`apps/web/.env`)
 
@@ -100,7 +106,10 @@ Nginx
     find /opt/gema/data/media -type f -exec chmod 644 {} +
     ```
   - Payload web process requires READ + WRITE; Host Nginx requires READ ONLY.
-  - Host ownership assignment (`chown`) is deferred until the production Dockerfile is finalized and its container runtime UID/GID is authoritatively known.
+  - Host ownership assignment: Container runs as non-root user `nextjs:nodejs` (`UID 1001, GID 1001`). Configure host permissions via:
+    ```bash
+    chown -R 1001:1001 /opt/gema/data/media
+    ```
 - **First Deployment Bootstrap**: Initial canonical media files in `apps/web/public/media/cms/` are copied to `/opt/gema/data/media/` before the container bind mount is activated to prevent masking image layer contents. Subsequent CMS uploads persist across container rebuilds and Git updates.
 
 ---
@@ -139,17 +148,90 @@ The VPS maintains approximately 100 GB storage. Monitor disk usage via standard 
 
 ---
 
-## 7. Build & Production Commands
+## 7. Production Docker Architecture & Operations
+
+The production deployment runs via Docker Compose on the Hostinger VPS:
+
+```text
+Hostinger VPS
+Nginx (:80 / :443)
+  ├── /api/media/file/*  ──>  Direct host filesystem: /opt/gema/data/media/
+  └── /*                 ──>  Reverse proxy to 127.0.0.1:3000
+                                  │
+                          Docker Bridge Network
+                                  ├── gema-web (Next.js 16 + Payload 3, non-root uid 1001)
+                                  │      bind mount: /opt/gema/data/media -> /app/public/media/cms
+                                  └── gema-postgres (PostgreSQL 16-alpine, private network only)
+                                         named volume: postgres_data -> /var/lib/postgresql/data
+```
+
+### Required Production Environment Variables (`.env`)
+
+Copy `.env.production.example` to `.env` in the deployment directory:
+
+| Variable | Description | Default / Example |
+|---|---|---|
+| `POSTGRES_USER` | PostgreSQL superuser/app user | `gema_user` |
+| `POSTGRES_PASSWORD` | Strong PostgreSQL password (required) | `[secure password]` |
+| `POSTGRES_DB` | Production database name | `gema_production` |
+| `PAYLOAD_SECRET` | Strong secret for JWT encryption (min 32 chars) | `[32+ random chars]` |
+| `PREVIEW_SECRET` | Secret for Next.js Draft Mode preview | `[32+ random chars]` |
+| `NEXT_PUBLIC_SERVER_URL` | Public site domain URL | `https://gemagroup.id` |
+| `MEDIA_DIR` | Host persistent media path | `/opt/gema/data/media` |
+
+### Persistence Architecture
+- **Database Persistence**: PostgreSQL data is stored in the Docker named volume `postgres_data`. It survives container recreations, image updates, and host reboots.
+- **Media Persistence**: CMS upload binaries are stored in `/opt/gema/data/media/` and bind-mounted to `/app/public/media/cms/`. The container runs as non-root user `nextjs:nodejs` (`UID 1001, GID 1001`), which requires read/write permissions on `/opt/gema/data/media/`.
+
+> [!CAUTION]
+> **DATABASE DESTRUCTION WARNING**: Running `docker compose down -v` will **DESTROY** the named `postgres_data` volume and delete the entire PostgreSQL database. **NEVER use the `-v` flag in production.**
+
+### First-Deployment Initialization & Bootstrap
+1. **Canonical Media**: The Docker image bakes 35 canonical assets into `/app/canonical-media/`. On startup, `docker-entrypoint.sh` executes `cp -n /app/canonical-media/* /app/public/media/cms/`. It populates missing files into the host bind mount on first run and **never overwrites** existing or newer production uploads.
+2. **Database Migrations**: Payload CMS production migrations are bundled directly into the standalone application (`prodMigrations`). On container startup, Payload automatically executes any pending migrations against PostgreSQL.
+3. **Splash Media Config**: `docker-entrypoint.sh` idempotently creates/verifies the `splash_media_config` table and seeds default desktop/mobile splash video paths.
+4. **First Admin User**: When the `users` collection is empty, Payload Admin (`/admin`) automatically displays the initial user registration screen. Create the first admin user securely through the browser on first deployment.
+
+### Service Healthcheck & Logging
+- **Web Healthcheck**: `GET /api/health` queries the database via `payload.count({ collection: 'users' })`. It returns HTTP 200 `{"status":"ok"}` only when both the Next.js process and PostgreSQL database are healthy and responding.
+- **Log Management**: Both services use Docker's `json-file` logging driver with conservative log limits: `max-size: "10m"` and `max-file: "3"`, preventing unbounded disk growth.
+
+### Basic Operational Commands
+```bash
+# Start all production services in background
+docker compose up -d
+
+# Check service status and healthcheck
+docker compose ps
+
+# View live application logs
+docker compose logs -f web
+
+# View live database logs
+docker compose logs -f postgres
+
+# Graceful restart of web application
+docker compose restart web
+
+# Graceful shutdown (preserves database and media)
+docker compose down
+```
+
+---
+
+## 8. Build & Verification Commands
 
 ```bash
 cd apps/web
 
-# Typecheck
+# TypeScript typecheck
 npm run typecheck
 
-# Production Build
+# Standalone production build
 npm run build
 
-# Start Production Server
-PORT=3000 npm run start
+# Docker production build & configuration validation
+docker compose build
+docker compose config
 ```
+

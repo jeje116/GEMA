@@ -8,7 +8,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     ORDER BY "_order" ASC
   `);
 
-  if (!checkRes.rows || checkRes.rows.length !== 4) {
+  const hasLegacyData = Boolean(checkRes.rows && checkRes.rows.length > 0);
+
+  if (hasLegacyData && checkRes.rows.length !== 4) {
     throw new Error(
       `CMS-007 Migration Safety Abort: Expected exactly 4 legacy cuisineTeaser records, found ${checkRes.rows?.length || 0}.`
     );
@@ -57,80 +59,82 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
     CREATE INDEX "_homepage_v_version_cuisine_teaser_item04_version_cuisin_idx" ON "_homepage_v" USING btree ("version_cuisine_teaser_item04_image_id");
   `);
 
-  // Step 3: Copy existing Media relationships to new columns BEFORE dropping tables
-  await db.execute(sql`
-    UPDATE "homepage" h
-    SET 
-      "cuisine_teaser_item01_image_id" = (SELECT "image_id" FROM "homepage_cuisine_teaser" WHERE "_parent_id" = h."id" AND "_order" = 1 LIMIT 1),
-      "cuisine_teaser_item02_image_id" = (SELECT "image_id" FROM "homepage_cuisine_teaser" WHERE "_parent_id" = h."id" AND "_order" = 2 LIMIT 1),
-      "cuisine_teaser_item03_image_id" = (SELECT "image_id" FROM "homepage_cuisine_teaser" WHERE "_parent_id" = h."id" AND "_order" = 3 LIMIT 1),
-      "cuisine_teaser_item04_image_id" = (SELECT "image_id" FROM "homepage_cuisine_teaser" WHERE "_parent_id" = h."id" AND "_order" = 4 LIMIT 1);
+  if (hasLegacyData) {
+    // Step 3: Copy existing Media relationships to new columns BEFORE dropping tables
+    await db.execute(sql`
+      UPDATE "homepage" h
+      SET 
+        "cuisine_teaser_item01_image_id" = (SELECT "image_id" FROM "homepage_cuisine_teaser" WHERE "_parent_id" = h."id" AND "_order" = 1 LIMIT 1),
+        "cuisine_teaser_item02_image_id" = (SELECT "image_id" FROM "homepage_cuisine_teaser" WHERE "_parent_id" = h."id" AND "_order" = 2 LIMIT 1),
+        "cuisine_teaser_item03_image_id" = (SELECT "image_id" FROM "homepage_cuisine_teaser" WHERE "_parent_id" = h."id" AND "_order" = 3 LIMIT 1),
+        "cuisine_teaser_item04_image_id" = (SELECT "image_id" FROM "homepage_cuisine_teaser" WHERE "_parent_id" = h."id" AND "_order" = 4 LIMIT 1);
 
-    UPDATE "_homepage_v" v
-    SET 
-      "version_cuisine_teaser_item01_image_id" = (SELECT "image_id" FROM "_homepage_v_version_cuisine_teaser" WHERE "_parent_id" = v."id" AND "_order" = 1 LIMIT 1),
-      "version_cuisine_teaser_item02_image_id" = (SELECT "image_id" FROM "_homepage_v_version_cuisine_teaser" WHERE "_parent_id" = v."id" AND "_order" = 2 LIMIT 1),
-      "version_cuisine_teaser_item03_image_id" = (SELECT "image_id" FROM "_homepage_v_version_cuisine_teaser" WHERE "_parent_id" = v."id" AND "_order" = 3 LIMIT 1),
-      "version_cuisine_teaser_item04_image_id" = (SELECT "image_id" FROM "_homepage_v_version_cuisine_teaser" WHERE "_parent_id" = v."id" AND "_order" = 4 LIMIT 1);
-  `);
+      UPDATE "_homepage_v" v
+      SET 
+        "version_cuisine_teaser_item01_image_id" = (SELECT "image_id" FROM "_homepage_v_version_cuisine_teaser" WHERE "_parent_id" = v."id" AND "_order" = 1 LIMIT 1),
+        "version_cuisine_teaser_item02_image_id" = (SELECT "image_id" FROM "_homepage_v_version_cuisine_teaser" WHERE "_parent_id" = v."id" AND "_order" = 2 LIMIT 1),
+        "version_cuisine_teaser_item03_image_id" = (SELECT "image_id" FROM "_homepage_v_version_cuisine_teaser" WHERE "_parent_id" = v."id" AND "_order" = 3 LIMIT 1),
+        "version_cuisine_teaser_item04_image_id" = (SELECT "image_id" FROM "_homepage_v_version_cuisine_teaser" WHERE "_parent_id" = v."id" AND "_order" = 4 LIMIT 1);
+    `);
 
-  // Step 4: Populate initial localized labels
-  await db.execute(sql`
-    UPDATE "homepage_locales"
-    SET
-      "cuisine_teaser_item01_label" = 'Antipasti',
-      "cuisine_teaser_item02_label" = 'Primi Piatti',
-      "cuisine_teaser_item03_label" = 'Secondi & Grill',
-      "cuisine_teaser_item04_label" = 'Dolci'
-    WHERE "_locale" = 'en';
+    // Step 4: Populate initial localized labels
+    await db.execute(sql`
+      UPDATE "homepage_locales"
+      SET
+        "cuisine_teaser_item01_label" = 'Antipasti',
+        "cuisine_teaser_item02_label" = 'Primi Piatti',
+        "cuisine_teaser_item03_label" = 'Secondi & Grill',
+        "cuisine_teaser_item04_label" = 'Dolci'
+      WHERE "_locale" = 'en';
 
-    UPDATE "homepage_locales"
-    SET
-      "cuisine_teaser_item01_label" = 'Antipasti',
-      "cuisine_teaser_item02_label" = 'Primi Piatti',
-      "cuisine_teaser_item03_label" = 'Secondi & Panggang',
-      "cuisine_teaser_item04_label" = 'Dolci'
-    WHERE "_locale" = 'id';
+      UPDATE "homepage_locales"
+      SET
+        "cuisine_teaser_item01_label" = 'Antipasti',
+        "cuisine_teaser_item02_label" = 'Primi Piatti',
+        "cuisine_teaser_item03_label" = 'Secondi & Panggang',
+        "cuisine_teaser_item04_label" = 'Dolci'
+      WHERE "_locale" = 'id';
 
-    UPDATE "_homepage_v_locales"
-    SET
-      "version_cuisine_teaser_item01_label" = 'Antipasti',
-      "version_cuisine_teaser_item02_label" = 'Primi Piatti',
-      "version_cuisine_teaser_item03_label" = 'Secondi & Grill',
-      "version_cuisine_teaser_item04_label" = 'Dolci'
-    WHERE "_locale" = 'en';
+      UPDATE "_homepage_v_locales"
+      SET
+        "version_cuisine_teaser_item01_label" = 'Antipasti',
+        "version_cuisine_teaser_item02_label" = 'Primi Piatti',
+        "version_cuisine_teaser_item03_label" = 'Secondi & Grill',
+        "version_cuisine_teaser_item04_label" = 'Dolci'
+      WHERE "_locale" = 'en';
 
-    UPDATE "_homepage_v_locales"
-    SET
-      "version_cuisine_teaser_item01_label" = 'Antipasti',
-      "version_cuisine_teaser_item02_label" = 'Primi Piatti',
-      "version_cuisine_teaser_item03_label" = 'Secondi & Panggang',
-      "version_cuisine_teaser_item04_label" = 'Dolci'
-    WHERE "_locale" = 'id';
-  `);
+      UPDATE "_homepage_v_locales"
+      SET
+        "version_cuisine_teaser_item01_label" = 'Antipasti',
+        "version_cuisine_teaser_item02_label" = 'Primi Piatti',
+        "version_cuisine_teaser_item03_label" = 'Secondi & Panggang',
+        "version_cuisine_teaser_item04_label" = 'Dolci'
+      WHERE "_locale" = 'id';
+    `);
 
-  // Step 5: Verify all 4 images were successfully copied to homepage
-  const verifyRes = await db.execute(sql`
-    SELECT 
-      "cuisine_teaser_item01_image_id",
-      "cuisine_teaser_item02_image_id",
-      "cuisine_teaser_item03_image_id",
-      "cuisine_teaser_item04_image_id"
-    FROM "homepage"
-    LIMIT 1
-  `);
+    // Step 5: Verify all 4 images were successfully copied to homepage
+    const verifyRes = await db.execute(sql`
+      SELECT 
+        "cuisine_teaser_item01_image_id",
+        "cuisine_teaser_item02_image_id",
+        "cuisine_teaser_item03_image_id",
+        "cuisine_teaser_item04_image_id"
+      FROM "homepage"
+      LIMIT 1
+    `);
 
-  const row = verifyRes.rows?.[0] as any;
-  if (
-    !row ||
-    !row.cuisine_teaser_item01_image_id ||
-    !row.cuisine_teaser_item02_image_id ||
-    !row.cuisine_teaser_item03_image_id ||
-    !row.cuisine_teaser_item04_image_id
-  ) {
-    throw new Error(
-      'CMS-007 Migration Verification Abort: One or more cuisine teaser image columns failed to populate.'
-    );
+    const row = verifyRes.rows?.[0] as any;
+    if (
+      !row ||
+      !row.cuisine_teaser_item01_image_id ||
+      !row.cuisine_teaser_item02_image_id ||
+      !row.cuisine_teaser_item03_image_id ||
+      !row.cuisine_teaser_item04_image_id
+    ) {
+      throw new Error(
+        'CMS-007 Migration Verification Abort: One or more cuisine teaser image columns failed to populate.'
+      );
+    }
   }
 
   // Step 6: Safe to drop obsolete array tables now that data has been copied and verified

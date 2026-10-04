@@ -5,6 +5,8 @@ import { getDictionary } from '@/i18n/getDictionary';
 import { getJournalEntries, getJournalPageData } from '@/content/provider';
 import JournalClient from '@/components/journal/JournalClient';
 
+import { SITE_URL } from '@/lib/siteUrl';
+
 export async function generateMetadata({
   params,
 }: {
@@ -19,7 +21,7 @@ export async function generateMetadata({
   const description = journalPageData?.subtitle || (locale === 'id' ? 'Cerita, resep, refleksi musiman, dan warisan kuliner dari GEMA Surabaya.' : 'Stories, recipes, seasonal reflections, and culinary heritage from GEMA Surabaya.');
 
   return {
-    title: `${title} — GEMA`,
+    title,
     description,
     alternates: {
       canonical: `/${locale}/journal`,
@@ -27,6 +29,19 @@ export async function generateMetadata({
         en: '/en/journal',
         id: '/id/journal',
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/${locale}/journal`,
+      siteName: 'GEMA Restaurant & Societiet',
+      locale: locale === 'id' ? 'id_ID' : 'en_US',
+      images: [
+        {
+          url: `${SITE_URL}/media/brand/gema-brand-2.png`,
+          alt: title,
+        },
+      ],
     },
   };
 }

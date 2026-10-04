@@ -4,7 +4,7 @@ import { isValidLocale, type Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { getEvents, getEventsPageData } from '@/content/provider';
 import EventsClient from '@/components/events/EventsClient';
-
+import { SITE_URL } from '@/lib/siteUrl';
 
 export async function generateMetadata({
   params,
@@ -20,7 +20,7 @@ export async function generateMetadata({
   const description = eventsPageData?.subtitle || t('events.title');
 
   return {
-    title: `${title} — GEMA`,
+    title,
     description,
     alternates: {
       canonical: `/${locale}/events`,
@@ -28,6 +28,19 @@ export async function generateMetadata({
         en: '/en/events',
         id: '/id/events',
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/${locale}/events`,
+      siteName: 'GEMA Restaurant & Societiet',
+      locale: locale === 'id' ? 'id_ID' : 'en_US',
+      images: [
+        {
+          url: `${SITE_URL}/media/brand/gema-brand-2.png`,
+          alt: title,
+        },
+      ],
     },
   };
 }

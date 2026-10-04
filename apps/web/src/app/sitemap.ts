@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next';
 import { LOCALES } from '@/i18n/config';
 import { getEvents, getJournalEntries, isJournalLocaleSubstantive } from '@/content/provider';
+import { SITE_URL } from '@/lib/siteUrl';
 
-const BASE_URL = 'https://gemasurabaya.com';
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes: MetadataRoute.Sitemap = [];
@@ -24,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const locale of LOCALES) {
     for (const path of staticPaths) {
       routes.push({
-        url: `${BASE_URL}/${locale}${path}`,
+        url: `${SITE_URL}/${locale}${path}`,
         lastModified: new Date(),
         changeFrequency: path === '' || path === '/events' ? 'daily' : 'weekly',
         priority: path === '' ? 1.0 : 0.8,
@@ -32,12 +33,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Dynamic Event routes
+  // Dynamic Event routes (published only)
   const events = await getEvents('en', { status: 'all' });
   for (const locale of LOCALES) {
     for (const evt of events) {
       routes.push({
-        url: `${BASE_URL}/${locale}/events/${evt.slug}`,
+        url: `${SITE_URL}/${locale}/events/${evt.slug}`,
         lastModified: new Date(evt.startDateTime),
         changeFrequency: 'weekly',
         priority: 0.7,
@@ -50,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const entry of journalEntries) {
     // English is always substantive
     routes.push({
-      url: `${BASE_URL}/en/journal/${entry.slug}`,
+      url: `${SITE_URL}/en/journal/${entry.slug}`,
       lastModified: new Date(entry.publishDate),
       changeFrequency: 'monthly',
       priority: 0.7,
@@ -59,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Indonesian is included only if substantive
     if (isJournalLocaleSubstantive(entry, 'id')) {
       routes.push({
-        url: `${BASE_URL}/id/journal/${entry.slug}`,
+        url: `${SITE_URL}/id/journal/${entry.slug}`,
         lastModified: new Date(entry.publishDate),
         changeFrequency: 'monthly',
         priority: 0.7,

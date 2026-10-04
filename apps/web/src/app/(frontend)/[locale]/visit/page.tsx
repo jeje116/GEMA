@@ -4,6 +4,7 @@ import { isValidLocale, type Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/getDictionary';
 import { getSiteData, getVisitPageData } from '@/content/provider';
 import VisitClient from '@/components/visit/VisitClient';
+import { SITE_URL } from '@/lib/siteUrl';
 
 export async function generateMetadata({
   params,
@@ -22,10 +23,10 @@ export async function generateMetadata({
   const description = locale === 'id'
     ? `Kunjungi GEMA di ${address}. Lokasi, petunjuk arah, dan panduan reservasi.`
     : `Visit GEMA at ${address}. Location, directions, and reservation guidelines.`;
-  const pageTitle = visitData?.title || t('nav.visit');
+  const title = visitData?.title || t('nav.visit');
 
   return {
-    title: `${pageTitle} — GEMA`,
+    title,
     description,
     alternates: {
       canonical: `/${locale}/visit`,
@@ -33,6 +34,19 @@ export async function generateMetadata({
         en: '/en/visit',
         id: '/id/visit',
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/${locale}/visit`,
+      siteName: 'GEMA Restaurant & Societiet',
+      locale: locale === 'id' ? 'id_ID' : 'en_US',
+      images: [
+        {
+          url: `${SITE_URL}/media/brand/gema-brand-2.png`,
+          alt: title,
+        },
+      ],
     },
   };
 }
@@ -50,6 +64,11 @@ export default async function VisitPage({
     getVisitPageData(locale as Locale),
   ]);
 
-  return <VisitClient locale={locale as Locale} siteData={siteData} visitData={visitData} />;
+  return (
+    <VisitClient 
+      locale={locale as Locale} 
+      siteData={siteData} 
+      visitData={visitData} 
+    />
+  );
 }
-

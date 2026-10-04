@@ -210,7 +210,7 @@ export default function GatewayExperience({
           {/* 2. ACCESSIBLE TEXT LANDMARKS (Always present in DOM)      */}
           {/* ========================================================= */}
           <div className="sr-only">
-            <h1>Gema Restaurant &amp; Societiet</h1>
+            <p className="font-serif text-lg">Gema Restaurant &amp; Societiet</p>
             <p>CUCINA &bull; BUONA COMPAGNIA &bull; BELLA VITA</p>
             <p>ITALIAN FOOD BRINGS PEOPLE TOGETHER</p>
             <p>Welcome. GOOD FOOD. BRIGHTER DAYS.</p>

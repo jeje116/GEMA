@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { isValidLocale, type Locale } from '@/i18n/config';
 import { getRecognitions, getRecognitionPageData } from '@/content/provider';
 import RecognitionClient from '@/components/recognition/RecognitionClient';
+import { SITE_URL } from '@/lib/siteUrl';
 
 export async function generateMetadata({
   params,
@@ -16,7 +17,7 @@ export async function generateMetadata({
   const description = recognitionData?.subtitle || (locale === 'id' ? 'Pengakuan kritis, penghargaan kuliner, dan liputan media untuk GEMA Surabaya.' : 'Critical reception, culinary awards, and notable press mentions for GEMA Surabaya.');
 
   return {
-    title: `${title} — GEMA`,
+    title,
     description,
     alternates: {
       canonical: `/${locale}/recognition`,
@@ -24,6 +25,19 @@ export async function generateMetadata({
         en: '/en/recognition',
         id: '/id/recognition',
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/${locale}/recognition`,
+      siteName: 'GEMA Restaurant & Societiet',
+      locale: locale === 'id' ? 'id_ID' : 'en_US',
+      images: [
+        {
+          url: `${SITE_URL}/media/brand/gema-brand-2.png`,
+          alt: title,
+        },
+      ],
     },
   };
 }
@@ -49,4 +63,3 @@ export default async function RecognitionPage({
     />
   );
 }
-

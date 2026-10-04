@@ -24,18 +24,27 @@ const robotoCondensed = Roboto_Condensed({
   display: 'swap',
 });
 
+import { SITE_URL } from '@/lib/siteUrl';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://gemasurabaya.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    template: '%s | GEMA Restaurant Surabaya',
-    default: 'GEMA Restaurant Surabaya',
+    template: '%s | GEMA Restaurant & Societiet',
+    default: 'GEMA Restaurant & Societiet',
   },
-  description: 'Italian classics, served with a touch of art. Concept MVP.',
+  description: 'Italian classics, served with a touch of art. GEMA Restaurant & Societiet, Surabaya.',
   openGraph: {
     type: 'website',
-    siteName: 'GEMA Restaurant Surabaya',
-    title: 'GEMA Restaurant Surabaya',
-    description: 'Italian classics, served with a touch of art. Concept MVP.',
+    siteName: 'GEMA Restaurant & Societiet',
+    title: 'GEMA Restaurant & Societiet',
+    description: 'Italian classics, served with a touch of art. GEMA Restaurant & Societiet, Surabaya.',
+    url: SITE_URL,
+    images: [
+      {
+        url: `${SITE_URL}/media/brand/gema-brand-2.png`,
+        alt: 'GEMA Restaurant & Societiet',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',

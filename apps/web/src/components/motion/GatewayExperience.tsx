@@ -81,8 +81,34 @@ export default function GatewayExperience({
       if (isHomepage && previousScrollRestorationRef.current && typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
         window.history.scrollRestoration = previousScrollRestorationRef.current;
       }
+      const vid = videoRef.current;
+      if (vid) {
+        vid.pause();
+        vid.removeAttribute('src');
+        vid.querySelectorAll('source').forEach((s) => s.removeAttribute('src'));
+        vid.load();
+      }
     };
   }, [isGatewayEntered, isHomepage]);
+
+  // Production reveal trigger: synchronized strictly with the native 'playing' event
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+
+    const handlePlaying = () => setVideoLoaded(true);
+
+    if (!vid.paused && vid.currentTime > 0) {
+      // Native playing event occurred prior to client hydration completion
+      setVideoLoaded(true);
+    } else {
+      vid.addEventListener('playing', handlePlaying, { once: true });
+    }
+
+    return () => {
+      vid.removeEventListener('playing', handlePlaying);
+    };
+  }, []);
 
   // Handle timeout fallback: marks fallback as active for slow networks without aborting background video
   useEffect(() => {
@@ -105,6 +131,14 @@ export default function GatewayExperience({
 
     if (isHomepage) {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+
+    const vid = videoRef.current;
+    if (vid) {
+      vid.pause();
+      vid.removeAttribute('src');
+      vid.querySelectorAll('source').forEach((s) => s.removeAttribute('src'));
+      vid.load();
     }
 
     setState('entered');
@@ -169,25 +203,45 @@ export default function GatewayExperience({
           {/* Always FULLSCREEN (100vw x 100dvh, object-cover, no letterbox) */}
           {/* ========================================================= */}
           <div data-splash-element="media-layer" className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
-            {/* Same-Origin Local Video Stream (No poster attribute, video-led) */}
-            {isClientMounted && !prefersReduced && !videoError && !!currentVideoUrl && (
+            {/* Same-Origin Local Video Stream (No poster attribute, early discovery via native source selection) */}
+            {!prefersReduced && !videoError && (
               <video
                 data-splash-element="video-stream"
                 ref={videoRef}
-                key={isMobile ? 'mobile-video' : 'desktop-video'}
-                src={currentVideoUrl}
                 autoPlay
                 muted
                 loop
                 playsInline
                 preload="auto"
                 onPlaying={() => setVideoLoaded(true)}
-                onError={() => setVideoError(true)}
+                onLoadedData={() => {
+                  const vid = videoRef.current;
+                  if (vid && vid.paused) {
+                    vid.play().catch(() => {});
+                  }
+                }}
+                onError={(e) => {
+                  // Guard against bubbling events from non-matching source queries
+                  if (e.target !== e.currentTarget) return;
+                  if (videoRef.current && !videoRef.current.error) return;
+                  setVideoError(true);
+                }}
                 className={cn(
-                  'absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700',
+                  'absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 motion-reduce:hidden',
                   videoLoaded ? 'opacity-100' : 'opacity-0'
                 )}
-              />
+              >
+                <source
+                  src={desktopVideoUrl}
+                  media="(prefers-reduced-motion: no-preference) and (min-width: 768px)"
+                  type="video/mp4"
+                />
+                <source
+                  src={mobileVideoUrl}
+                  media="(prefers-reduced-motion: no-preference) and (max-width: 767.98px)"
+                  type="video/mp4"
+                />
+              </video>
             )}
           </div>
 

@@ -14,9 +14,6 @@ import type { SplashConfig } from '@/lib/splashConfig';
 
 type GatewayState = 'loading' | 'ready' | 'idle' | 'entered';
 
-// Visual Oracle Reference Images (Posters & Fallbacks)
-const DESKTOP_REF_IMAGE = '/media/splash/desktop-ref.webp';
-const MOBILE_REF_IMAGE = '/media/splash/mobile-ref.webp';
 
 export default function GatewayExperience({
   locale,
@@ -89,10 +86,7 @@ export default function GatewayExperience({
 
   // Handle timeout fallback: marks fallback as active for slow networks without aborting background video
   useEffect(() => {
-    if (prefersReduced) {
-      setVideoError(true);
-      return;
-    }
+    if (prefersReduced) return;
 
     const timer = setTimeout(() => {
       if (isMounted.current && !videoLoaded) {
@@ -134,13 +128,11 @@ export default function GatewayExperience({
     }
   };
 
-  const currentPoster = isMobile ? MOBILE_REF_IMAGE : DESKTOP_REF_IMAGE;
-  const desktopVideoUrl = splashConfig?.desktopVideoUrl ?? null;
-  const mobileVideoUrl = splashConfig?.mobileVideoUrl ?? null;
+  const desktopVideoUrl = splashConfig?.desktopVideoUrl || '/media/splash/gema-splash-desktop.mp4';
+  const mobileVideoUrl = splashConfig?.mobileVideoUrl || '/media/splash/gema-splash-mobile.mp4';
   const currentVideoUrl = isMobile ? mobileVideoUrl : desktopVideoUrl;
 
-  // The fallback image already embeds the complete visual typography oracle.
-  // When video plays (living scene), the DOM overlay renders the typography on top of the textless video.
+  // Overlay typography renders directly over the living scene once video starts playing
   const showDomOverlay = videoLoaded && !videoError;
 
   return (
@@ -161,33 +153,23 @@ export default function GatewayExperience({
           initial={{ opacity: 1, y: 0 }}
           exit={{
             opacity: 0,
-            y: '-100%',
+            y: prefersReduced ? 0 : '-100%',
           }}
-          transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+          transition={{
+            duration: prefersReduced ? 0.3 : 0.8,
+            ease: prefersReduced ? 'linear' : [0.76, 0, 0.24, 1],
+          }}
           className={cn(
             'fixed inset-0 z-50 flex items-center justify-center bg-[#F6F1EA] cursor-pointer outline-none border-none overflow-hidden select-none',
             'focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-focus'
           )}
         >
           {/* ========================================================= */}
-          {/* 1. LIVING BACKGROUND / VIDEO / VISUAL FALLBACK LAYER       */}
+          {/* 1. LIVING BACKGROUND / VIDEO LAYER                       */}
           {/* Always FULLSCREEN (100vw x 100dvh, object-cover, no letterbox) */}
           {/* ========================================================= */}
           <div data-splash-element="media-layer" className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
-            {/* Visual Oracle Poster / Fallback Image */}
-            <img
-              data-splash-element="poster-fallback"
-              src={currentPoster}
-              alt="GEMA Gateway Visual Oracle"
-              fetchPriority="high"
-              decoding="async"
-              className={cn(
-                'absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000',
-                videoLoaded && !videoError ? 'opacity-0' : 'opacity-100'
-              )}
-            />
-
-            {/* Same-Origin Local Video Stream (rendered strictly when database-configured path exists) */}
+            {/* Same-Origin Local Video Stream (No poster attribute, video-led) */}
             {isClientMounted && !prefersReduced && !videoError && !!currentVideoUrl && (
               <video
                 data-splash-element="video-stream"
@@ -199,16 +181,70 @@ export default function GatewayExperience({
                 loop
                 playsInline
                 preload="auto"
-                poster={currentPoster}
                 onPlaying={() => setVideoLoaded(true)}
                 onError={() => setVideoError(true)}
                 className={cn(
-                  'absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000',
+                  'absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700',
                   videoLoaded ? 'opacity-100' : 'opacity-0'
                 )}
               />
             )}
           </div>
+
+          {/* ========================================================= */}
+          {/* 2. NEUTRAL GEMA REDUCED MOTION PRESENTATION (Zero photo)   */}
+          {/* ========================================================= */}
+          {prefersReduced && (
+            <div
+              data-splash-element="reduced-motion-presentation"
+              className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none z-10"
+            >
+              <div className="relative w-48 sm:w-56 h-24 sm:h-28 mb-4 opacity-90">
+                <Image
+                  src="/media/splash/gema-dark.png"
+                  alt="GEMA restaurant & societiet"
+                  fill
+                  priority
+                  className="object-contain"
+                />
+              </div>
+              <div className="w-16 h-[1px] bg-[#BFA16F]/70 mb-3" />
+              <p className="font-condensed text-[10px] sm:text-[11px] tracking-[0.3em] text-[#6b5743] uppercase font-light">
+                ENTER
+              </p>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* 2. NEUTRAL GEMA LOADING STATE (Active only before video ready) */}
+          {/* ========================================================= */}
+          {!videoLoaded && !videoError && !prefersReduced && (
+            <div
+              data-splash-element="neutral-loading"
+              className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-500 select-none z-10"
+            >
+              {/* Brand Logo Emblem */}
+              <div className="relative w-44 sm:w-52 h-20 sm:h-24 mb-4 opacity-85">
+                <Image
+                  src="/media/splash/gema-dark.png"
+                  alt="GEMA restaurant & societiet"
+                  fill
+                  priority
+                  className="object-contain"
+                />
+              </div>
+
+              {/* Minimal Warm Gold Hairline Indicator */}
+              <div className="w-16 h-[1px] bg-[#BFA16F]/40 mb-3 overflow-hidden relative">
+                <div className="absolute inset-0 bg-[#BFA16F] animate-pulse" />
+              </div>
+
+              {/* GEMA Brand Loading Label */}
+              <p className="font-condensed text-[10px] sm:text-[11px] tracking-[0.3em] text-[#6b5743] uppercase font-light">
+                LOADING
+              </p>
+            </div>
+          )}
 
           {/* ========================================================= */}
           {/* 2. ACCESSIBLE TEXT LANDMARKS (Always present in DOM)      */}

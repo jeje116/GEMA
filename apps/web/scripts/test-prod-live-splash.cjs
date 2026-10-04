@@ -1,86 +1,141 @@
 const { chromium } = require('/Users/jasonsjanuard/scratch_playwright/node_modules/playwright');
 
-async function testLiveProduction() {
-  console.log('=== RUNNING LIVE PRODUCTION EMPIRICAL SPLASH VERIFICATION ===\n');
-  const browser = await chromium.launch({ headless: true });
-  let totalResDiaryRequests = 0;
+async function testProductionSplash() {
+  const targetBaseUrl = process.env.BASE_URL || 'https://gemagroup.id';
+  console.log(`=== LIVE PRODUCTION VIDEO-LED SPLASH VERIFICATION (${targetBaseUrl}) ===\n`);
 
-  // 1. DESKTOP BROADBAND ON PRODUCTION
-  console.log('--- TEST 1: DESKTOP BROADBAND ON LIVE PRODUCTION (https://gemagroup.id/en) ---');
+  const browser = await chromium.launch({ headless: true });
+  let liveResDiaryRequests = 0;
+  let liveBookings = 0;
+
+  const results = {
+    desktop: {},
+    mobile: {},
+    reducedMotion: {},
+    zeroRef: {},
+  };
+
+  // 1. DESKTOP PRODUCTION TEST
+  console.log('--- 1. DESKTOP PRODUCTION TEST (1440x900) ---');
   {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
 
     await page.route('**/*resdiary*/**', route => {
-      totalResDiaryRequests++;
+      liveResDiaryRequests++;
+      if (route.request().method() === 'POST') liveBookings++;
       return route.fulfill({ status: 200, contentType: 'application/javascript', body: '/* mock */' });
     });
 
-    const networkTimeline = [];
-    page.on('response', res => {
-      const url = res.url();
-      if (url.includes('.webp') || url.includes('.png') || url.includes('.mp4')) {
-        networkTimeline.push({
+    let bytesTransferredBeforePlayback = 0;
+    let playbackStarted = false;
+    const mediaRequests = [];
+
+    page.on('response', async resp => {
+      const url = resp.url();
+      if (url.includes('.mp4')) {
+        const headers = resp.headers();
+        const cl = parseInt(headers['content-length'] || '0', 10);
+        if (!playbackStarted && cl > 0) {
+          bytesTransferredBeforePlayback += cl;
+        }
+        mediaRequests.push({
           url: url.split('/').pop(),
-          status: res.status(),
-          size: res.headers()['content-length'],
-          time: Date.now()
+          status: resp.status(),
+          contentRange: headers['content-range'] || null,
+          contentLength: cl,
         });
       }
     });
 
     const t0 = Date.now();
-    await page.goto('https://gemagroup.id/en', { waitUntil: 'domcontentloaded' });
-    const domLoadedTime = Date.now() - t0;
+    await page.goto(`${targetBaseUrl}/en`, { waitUntil: 'domcontentloaded' });
 
-    // Check poster state
-    const posterState = await page.evaluate(() => {
-      const img = document.querySelector('img[data-splash-element="poster-fallback"]');
+    // Initial check: DOM before video ready
+    const initialCheck = await page.evaluate(() => {
+      const posterImg = document.querySelector('img[data-splash-element="poster-fallback"]');
+      const neutralLoading = document.querySelector('div[data-splash-element="neutral-loading"]');
+      const video = document.querySelector('video[data-splash-element="video-stream"]');
       return {
-        src: img ? img.src : null,
-        fetchPriority: img ? img.getAttribute('fetchpriority') : null,
-        decoding: img ? img.decoding : null,
-        complete: img ? img.complete : null,
-        naturalWidth: img ? img.naturalWidth : null,
-        naturalHeight: img ? img.naturalHeight : null,
+        hasPosterImage: !!posterImg,
+        hasNeutralLoading: !!neutralLoading,
+        hasVideoPosterAttr: video ? !!video.getAttribute('poster') : false,
       };
     });
-    console.log(`Poster rendered at ${domLoadedTime}ms:`, JSON.stringify(posterState, null, 2));
 
-    // Wait for video element
-    await page.waitForSelector('video[data-splash-element="video-stream"]', { timeout: 10000 });
-    const videoAttributes = await page.evaluate(() => {
-      const v = document.querySelector('video[data-splash-element="video-stream"]');
-      return {
-        currentSrc: v ? v.currentSrc : null,
-        poster: v ? v.poster : null,
-        preload: v ? v.preload : null,
-        readyState: v ? v.readyState : null,
-      };
+    await page.waitForSelector('video[data-splash-element="video-stream"]');
+    const desktopMetrics = await page.evaluate(async (t0) => {
+      const video = document.querySelector('video[data-splash-element="video-stream"]');
+      let stalledCount = 0;
+      let waitingCount = 0;
+
+      video.addEventListener('stalled', () => stalledCount++);
+      video.addEventListener('waiting', () => waitingCount++);
+
+      return new Promise(resolve => {
+        const report = () => ({
+          timeToFirstFrameMs: Date.now() - t0,
+          videoCurrentSrc: video.currentSrc,
+          videoWidth: video.videoWidth,
+          videoHeight: video.videoHeight,
+          readyState: video.readyState,
+          currentTime: video.currentTime,
+          paused: video.paused,
+          videoOpacity: window.getComputedStyle(video).opacity,
+          stalledCount,
+          waitingCount,
+        });
+
+        if (!video.paused && video.currentTime > 0) {
+          resolve(report());
+          return;
+        }
+
+        video.addEventListener('playing', () => {
+          setTimeout(() => resolve(report()), 800);
+        });
+      });
+    }, t0);
+
+    playbackStarted = true;
+
+    // Overlay check
+    const overlayOpacity = await page.evaluate(() => {
+      const overlay = document.querySelector('div.hidden.md\\:block');
+      return overlay ? window.getComputedStyle(overlay).opacity : null;
     });
-    console.log('Desktop Video Initial State:', JSON.stringify(videoAttributes, null, 2));
 
-    // Gateway interaction test
-    console.log('Testing Gateway Enter...');
+    // Test Gateway Enter
     await page.click('button[aria-label="Enter GEMA website"]');
     await page.waitForTimeout(1000);
-    const splashDismissed = await page.evaluate(() => {
-      const v = document.querySelector('video[data-splash-element="video-stream"]');
-      const b = document.querySelector('button[aria-label="Enter GEMA website"]');
-      return !v && !b;
+    const videoUnmounted = await page.evaluate(() => {
+      return !document.querySelector('video[data-splash-element="video-stream"]');
     });
-    console.log('Gateway successfully exited & video unmounted:', splashDismissed);
 
-    console.log('Network transfers captured:');
-    for (const item of networkTimeline) {
-      console.log(`  - [${item.status}] ${item.url} (${item.size} bytes) at +${item.time - t0}ms`);
-    }
+    const wrongDeviceRequested = mediaRequests.some(r => r.url.includes('mobile'));
+
+    results.desktop = {
+      initialCheck,
+      desktopMetrics,
+      overlayOpacity,
+      videoUnmounted,
+      bytesTransferredBeforePlayback,
+      mediaRequests,
+      wrongDeviceRequested,
+    };
+
+    console.log('Initial checks:', initialCheck);
+    console.log('Desktop Metrics:', desktopMetrics);
+    console.log('Bytes transferred before playback:', bytesTransferredBeforePlayback);
+    console.log('Overlay Opacity:', overlayOpacity);
+    console.log('Video Unmounted on Enter:', videoUnmounted);
+    console.log('Wrong-device requested (mobile on desktop):', wrongDeviceRequested);
 
     await context.close();
   }
 
-  // 2. MOBILE VIEWPORT ON PRODUCTION
-  console.log('\n--- TEST 2: MOBILE VIEWPORT ON LIVE PRODUCTION (390x844) ---');
+  // 2. MOBILE PRODUCTION TEST
+  console.log('\n--- 2. MOBILE PRODUCTION TEST (390x844) ---');
   {
     const context = await browser.newContext({
       viewport: { width: 390, height: 844 },
@@ -90,128 +145,196 @@ async function testLiveProduction() {
     const page = await context.newPage();
 
     await page.route('**/*resdiary*/**', route => {
-      totalResDiaryRequests++;
+      liveResDiaryRequests++;
+      if (route.request().method() === 'POST') liveBookings++;
+      return route.fulfill({ status: 200, contentType: 'application/javascript', body: '/* mock */' });
+    });
+
+    let bytesTransferredBeforePlayback = 0;
+    let playbackStarted = false;
+    const mediaRequests = [];
+
+    page.on('response', async resp => {
+      const url = resp.url();
+      if (url.includes('.mp4')) {
+        const headers = resp.headers();
+        const cl = parseInt(headers['content-length'] || '0', 10);
+        if (!playbackStarted && cl > 0) {
+          bytesTransferredBeforePlayback += cl;
+        }
+        mediaRequests.push({
+          url: url.split('/').pop(),
+          status: resp.status(),
+          contentRange: headers['content-range'] || null,
+          contentLength: cl,
+        });
+      }
+    });
+
+    const t0 = Date.now();
+    await page.goto(`${targetBaseUrl}/en`, { waitUntil: 'domcontentloaded' });
+
+    await page.waitForSelector('video[data-splash-element="video-stream"]');
+    const mobileMetrics = await page.evaluate(async (t0) => {
+      const video = document.querySelector('video[data-splash-element="video-stream"]');
+      const posterImg = document.querySelector('img[data-splash-element="poster-fallback"]');
+      let stalledCount = 0;
+      let waitingCount = 0;
+
+      video.addEventListener('stalled', () => stalledCount++);
+      video.addEventListener('waiting', () => waitingCount++);
+
+      return new Promise(resolve => {
+        const report = () => ({
+          timeToFirstFrameMs: Date.now() - t0,
+          currentSrc: video.currentSrc,
+          videoWidth: video.videoWidth,
+          videoHeight: video.videoHeight,
+          hasPosterImage: !!posterImg,
+          hasPosterAttr: !!video.getAttribute('poster'),
+          readyState: video.readyState,
+          currentTime: video.currentTime,
+          videoOpacity: window.getComputedStyle(video).opacity,
+          stalledCount,
+          waitingCount,
+        });
+
+        if (!video.paused && video.currentTime > 0) {
+          resolve(report());
+          return;
+        }
+
+        video.addEventListener('playing', () => {
+          setTimeout(() => resolve(report()), 800);
+        });
+      });
+    }, t0);
+
+    playbackStarted = true;
+
+    const wrongDeviceRequested = mediaRequests.some(r => r.url.includes('desktop'));
+
+    results.mobile = {
+      mobileMetrics,
+      bytesTransferredBeforePlayback,
+      mediaRequests,
+      wrongDeviceRequested,
+    };
+
+    console.log('Mobile Metrics:', mobileMetrics);
+    console.log('Bytes transferred before playback:', bytesTransferredBeforePlayback);
+    console.log('Wrong-device requested (desktop on mobile):', wrongDeviceRequested);
+
+    await context.close();
+  }
+
+  // 3. REDUCED MOTION PRODUCTION TEST
+  console.log('\n--- 3. REDUCED MOTION PRODUCTION TEST ---');
+  {
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 900 },
+      reducedMotion: 'reduce',
+    });
+    const page = await context.newPage();
+
+    await page.route('**/*resdiary*/**', route => {
+      liveResDiaryRequests++;
       return route.fulfill({ status: 200, contentType: 'application/javascript', body: '/* mock */' });
     });
 
     const requests = [];
     page.on('request', req => {
-      const url = req.url();
-      if (url.includes('.mp4') || url.includes('.webp') || url.includes('.png')) {
-        requests.push(url.split('/').pop());
-      }
+      requests.push(req.url());
     });
 
-    const t0 = Date.now();
-    await page.goto('https://gemagroup.id/en', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(500); // allow hydration
+    await page.goto(`${targetBaseUrl}/en`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1000);
 
-    const mobilePoster = await page.evaluate(() => {
-      const img = document.querySelector('img[data-splash-element="poster-fallback"]');
+    const reducedData = await page.evaluate(() => {
+      const reducedElem = document.querySelector('[data-splash-element="reduced-motion-presentation"]');
+      const video = document.querySelector('video[data-splash-element="video-stream"]');
+      const neutralLoading = document.querySelector('[data-splash-element="neutral-loading"]');
+      const button = document.querySelector('button[aria-label="Enter GEMA website"]');
+
       return {
-        src: img ? img.src : null,
-        naturalWidth: img ? img.naturalWidth : null,
-        naturalHeight: img ? img.naturalHeight : null,
+        hasReducedPresentation: !!reducedElem,
+        reducedText: reducedElem ? reducedElem.innerText.trim() : null,
+        hasVideoElement: !!video,
+        hasNeutralLoading: !!neutralLoading,
+        backgroundColor: button ? window.getComputedStyle(button).backgroundColor : null,
       };
     });
-    console.log('Mobile Poster:', JSON.stringify(mobilePoster, null, 2));
 
-    await page.waitForSelector('video[data-splash-element="video-stream"]', { timeout: 10000 });
-    const mobileVideo = await page.evaluate(() => {
-      const v = document.querySelector('video[data-splash-element="video-stream"]');
-      return {
-        currentSrc: v ? v.currentSrc : null,
-        poster: v ? v.poster : null,
-      };
-    });
-    console.log('Mobile Video:', JSON.stringify(mobileVideo, null, 2));
+    const splashVideoRequested = requests.filter(url => url.includes('gema-splash-'));
+    const refPhotoRequested = requests.filter(url => url.includes('ref.'));
 
-    const mp4Requests = requests.filter(u => u.endsWith('.mp4'));
-    console.log('MP4 files requested on mobile:', mp4Requests);
+    results.reducedMotion = {
+      reducedData,
+      splashVideoRequestsCount: splashVideoRequested.length,
+      refPhotoRequestsCount: refPhotoRequested.length,
+    };
+
+    console.log('Reduced Motion Data:', reducedData);
+    console.log('Splash video requested during reduced motion:', splashVideoRequested.length);
+    console.log('Ref photo requested during reduced motion:', refPhotoRequested.length);
 
     await context.close();
   }
 
-  // 3. THROTTLED TEST WITH VIDEO READY AFTER 4 SECONDS ON LIVE PRODUCTION
-  console.log('\n--- TEST 3: LIVE PRODUCTION WITH DELAYED VIDEO STREAM (> 4s) ---');
+  // 4. ZERO REFERENCE ASSET AUDIT ON PRODUCTION
+  console.log('\n--- 4. ZERO REFERENCE ASSET AUDIT ON PRODUCTION ---');
   {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
 
     await page.route('**/*resdiary*/**', route => {
-      totalResDiaryRequests++;
+      liveResDiaryRequests++;
       return route.fulfill({ status: 200, contentType: 'application/javascript', body: '/* mock */' });
     });
 
-    // Artificially delay MP4 video stream by 4200ms
-    await page.route('**/*gema-splash*.mp4', async route => {
-      console.log('[THROTTLE HOOK] Intentionally delaying 4K video stream by 4200ms...');
-      await new Promise(r => setTimeout(r, 4200));
-      return route.continue();
+    const refRequests = [];
+    page.on('request', req => {
+      const u = req.url();
+      if (u.includes('desktop-ref') || u.includes('mobile-ref')) {
+        refRequests.push(u);
+      }
     });
 
-    const t0 = Date.now();
-    await page.goto('https://gemagroup.id/en', { waitUntil: 'domcontentloaded' });
+    await page.goto(`${targetBaseUrl}/en`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(2000);
 
-    // Check at 4100ms (past 4s threshold)
-    await page.waitForTimeout(4100);
-    const stateAt4100 = await page.evaluate(() => {
-      const video = document.querySelector('video[data-splash-element="video-stream"]');
-      const img = document.querySelector('img[data-splash-element="poster-fallback"]');
-      return {
-        videoExists: !!video,
-        videoOpacity: video ? window.getComputedStyle(video).opacity : null,
-        posterOpacity: img ? window.getComputedStyle(img).opacity : null,
-      };
-    });
-    console.log('Status at +4100ms (past 4-second timeout):', JSON.stringify(stateAt4100, null, 2));
-
-    // Wait for video to begin playing after delayed arrival
-    console.log('Observing delayed video transition...');
-    const playbackObserved = await page.evaluate(async () => {
-      const video = document.querySelector('video[data-splash-element="video-stream"]');
-      const img = document.querySelector('img[data-splash-element="poster-fallback"]');
-      if (!video) return { error: 'VIDEO DESTROYED PREMATURELY!' };
-      return new Promise(resolve => {
-        if (!video.paused && video.currentTime > 0) {
-          resolve({
-            success: true,
-            currentTime: video.currentTime,
-            videoOpacity: window.getComputedStyle(video).opacity,
-            posterOpacity: window.getComputedStyle(img).opacity,
-          });
-          return;
+    const domRefImages = await page.evaluate(() => {
+      const matches = [];
+      document.querySelectorAll('*').forEach(el => {
+        if (el.tagName === 'IMG' && (el.src.includes('desktop-ref') || el.src.includes('mobile-ref'))) {
+          matches.push(el.src);
         }
-        video.addEventListener('playing', () => {
-          setTimeout(() => {
-            resolve({
-              success: true,
-              currentTime: video.currentTime,
-              videoOpacity: window.getComputedStyle(video).opacity,
-              posterOpacity: window.getComputedStyle(img).opacity,
-            });
-          }, 1100);
-        });
-        setTimeout(() => {
-          resolve({
-            success: false,
-            readyState: video.readyState,
-            paused: video.paused,
-          });
-        }, 8000);
+        const bg = window.getComputedStyle(el).backgroundImage;
+        if (bg && (bg.includes('desktop-ref') || bg.includes('mobile-ref'))) {
+          matches.push(bg);
+        }
       });
+      return matches;
     });
-    console.log('Result after delayed video stream:', JSON.stringify(playbackObserved, null, 2));
+
+    results.zeroRef = {
+      domRefImagesCount: domRefImages.length,
+      networkRefRequestsCount: refRequests.length,
+    };
+
+    console.log('DOM references to desktop-ref / mobile-ref:', domRefImages.length);
+    console.log('Network requests for desktop-ref / mobile-ref:', refRequests.length);
 
     await context.close();
   }
 
   console.log('\n--- RESDIARY PROTOCOL SAFETY CHECK ---');
-  console.log(`Live ResDiary Requests: ${totalResDiaryRequests} (all intercepted/mocked, 0 live)`);
-  console.log('Live Bookings Submitted: 0');
+  console.log(`Live ResDiary Requests: 0 (all mocked, total intercepted: ${liveResDiaryRequests})`);
+  console.log(`Live Bookings Submitted: ${liveBookings}`);
 
   await browser.close();
   console.log('\n=== LIVE PRODUCTION QA COMPLETE ===');
+  return results;
 }
 
-testLiveProduction().catch(console.error);
+testProductionSplash().catch(console.error);

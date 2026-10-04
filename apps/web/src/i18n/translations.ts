@@ -6,6 +6,7 @@ type TranslationDictionary = {
 
 export const translations: Record<Locale, TranslationDictionary> = {
   en: {
+    'nav.home': 'Home',
     'nav.menu': 'Menu',
     'nav.experience': 'Experience',
     'nav.events': 'Events',
@@ -120,6 +121,7 @@ export const translations: Record<Locale, TranslationDictionary> = {
     'footer.nav': 'Navigation'
   },
   id: {
+    'nav.home': 'Beranda',
     'nav.menu': 'Menu',
     'nav.experience': 'Pengalaman',
     'nav.events': 'Acara',

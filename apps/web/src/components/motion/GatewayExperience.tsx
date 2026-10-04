@@ -15,8 +15,8 @@ import type { SplashConfig } from '@/lib/splashConfig';
 type GatewayState = 'loading' | 'ready' | 'idle' | 'entered';
 
 // Visual Oracle Reference Images (Posters & Fallbacks)
-const DESKTOP_REF_IMAGE = '/media/splash/desktop-ref.png';
-const MOBILE_REF_IMAGE = '/media/splash/mobile-ref.png';
+const DESKTOP_REF_IMAGE = '/media/splash/desktop-ref.webp';
+const MOBILE_REF_IMAGE = '/media/splash/mobile-ref.webp';
 
 export default function GatewayExperience({
   locale,
@@ -37,6 +37,7 @@ export default function GatewayExperience({
   const [isMobile, setIsMobile] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [fallbackTimeoutReached, setFallbackTimeoutReached] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const isHomepage = pathname === '/' || pathname === `/${locale}` || pathname === `/${locale}/` || pathname === '/en' || pathname === '/id';
@@ -86,7 +87,7 @@ export default function GatewayExperience({
     };
   }, [isGatewayEntered, isHomepage]);
 
-  // Handle timeout fallback if video doesn't play within 4s
+  // Handle timeout fallback: marks fallback as active for slow networks without aborting background video
   useEffect(() => {
     if (prefersReduced) {
       setVideoError(true);
@@ -95,7 +96,7 @@ export default function GatewayExperience({
 
     const timer = setTimeout(() => {
       if (isMounted.current && !videoLoaded) {
-        setVideoError(true);
+        setFallbackTimeoutReached(true);
       }
     }, 4000);
 
@@ -178,6 +179,8 @@ export default function GatewayExperience({
               data-splash-element="poster-fallback"
               src={currentPoster}
               alt="GEMA Gateway Visual Oracle"
+              fetchPriority="high"
+              decoding="async"
               className={cn(
                 'absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000',
                 videoLoaded && !videoError ? 'opacity-0' : 'opacity-100'
@@ -196,6 +199,7 @@ export default function GatewayExperience({
                 loop
                 playsInline
                 preload="auto"
+                poster={currentPoster}
                 onPlaying={() => setVideoLoaded(true)}
                 onError={() => setVideoError(true)}
                 className={cn(

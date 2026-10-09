@@ -82,6 +82,7 @@ export interface PageMediaData {
     materialImage02?: NormalizedMedia | null;
     materialImage03?: NormalizedMedia | null;
     materialImage04?: NormalizedMedia | null;
+    craftImage?: NormalizedMedia | null;
   };
   occasions: {
     heroImage: NormalizedMedia;
@@ -199,10 +200,10 @@ export interface ExperiencePageData {
     eveningHeading: string;
     eveningDescription: string;
   };
-  materials: {
+  craft: {
     heading: string;
-    body1: string;
-    body2: string;
+    intro: string;
+    body: string;
   };
 }
 
@@ -232,10 +233,10 @@ export async function getExperiencePageData(locale: Locale = 'en'): Promise<Expe
           eveningHeading: doc.dayToNight?.eveningHeading || '',
           eveningDescription: doc.dayToNight?.eveningDescription || '',
         },
-        materials: {
-          heading: doc.materials?.heading || '',
-          body1: doc.materials?.body1 || '',
-          body2: doc.materials?.body2 || '',
+        craft: {
+          heading: doc.craft?.heading || 'The Craft',
+          intro: doc.craft?.intro || 'Behind every plate is a rhythm\nof preparation and precision.',
+          body: doc.craft?.body || 'The experience at GEMA is shaped as much by what happens behind the pass as what arrives at the table. Open-kitchen energy, careful plating, and handmade detail give every dish its character.',
         },
       };
     }
@@ -760,6 +761,7 @@ export async function getPageMedia(locale: Locale = 'en'): Promise<PageMediaData
           materialImage02: pageMedia.experience?.materialImage02 ? resolveMedia(pageMedia.experience.materialImage02) : null,
           materialImage03: pageMedia.experience?.materialImage03 ? resolveMedia(pageMedia.experience.materialImage03) : null,
           materialImage04: pageMedia.experience?.materialImage04 ? resolveMedia(pageMedia.experience.materialImage04) : null,
+          craftImage: pageMedia.experience?.craftImage ? resolveMedia(pageMedia.experience.craftImage) : null,
         },
         occasions: {
           heroImage: resolveMedia(pageMedia.occasions?.heroImage),

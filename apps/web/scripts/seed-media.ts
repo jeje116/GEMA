@@ -194,6 +194,14 @@ const UNIQUE_ASSETS: UniqueAssetDef[] = [
     mimetype: 'image/jpeg',
     alt: { en: 'GEMA branded tableware and hospitality details' },
   },
+  {
+    sourceKey: 'experience.craft',
+    sourceType: 'local',
+    source: 'media/cms/experience-the-craft-chef-plating.webp',
+    filename: 'experience-the-craft-chef-plating.webp',
+    mimetype: 'image/webp',
+    alt: { en: 'Chef plating a dish at GEMA', id: 'Chef menata hidangan di GEMA' },
+  },
 
   // Occasions assets
   {
@@ -474,6 +482,7 @@ async function runSeed() {
   const expMorn = mediaRecordMap.get('experience.morning');
   const expEve = mediaRecordMap.get('experience.evening');
   const expDet = mediaRecordMap.get('experience.details');
+  const expCraft = mediaRecordMap.get('experience.craft');
   const occHero = mediaRecordMap.get('occasions.hero');
   const occPriv = mediaRecordMap.get('occasions.private-dining');
   const occWed = mediaRecordMap.get('occasions.wedding');
@@ -499,6 +508,7 @@ async function runSeed() {
         morningImage: expMorn.id,
         eveningImage: expEve.id,
         detailsImage: expDet.id,
+        craftImage: expCraft?.id,
       },
       occasions: {
         heroImage: occHero.id,

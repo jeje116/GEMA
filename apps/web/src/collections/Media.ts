@@ -63,7 +63,7 @@ export const Media: CollectionConfig = {
           if (pageMedia) {
             const menuMatch = pageMedia.menu?.foodImage === mediaId || pageMedia.menu?.beverageImage === mediaId;
             const aboutMatch = pageMedia.about?.originImage === mediaId || pageMedia.about?.philosophyImage === mediaId || pageMedia.about?.architectureImage === mediaId;
-            const expMatch = pageMedia.experience?.heroImage === mediaId || pageMedia.experience?.morningImage === mediaId || pageMedia.experience?.eveningImage === mediaId || pageMedia.experience?.detailsImage === mediaId;
+            const expMatch = pageMedia.experience?.heroImage === mediaId || pageMedia.experience?.morningImage === mediaId || pageMedia.experience?.eveningImage === mediaId || pageMedia.experience?.detailsImage === mediaId || pageMedia.experience?.craftImage === mediaId;
             const occMatch = pageMedia.occasions?.heroImage === mediaId || pageMedia.occasions?.privateDiningImage === mediaId || pageMedia.occasions?.weddingImage === mediaId || pageMedia.occasions?.birthdayImage === mediaId || pageMedia.occasions?.brandMondialImage === mediaId || pageMedia.occasions?.brandFrankCoImage === mediaId || pageMedia.occasions?.brandMaharvaImage === mediaId;
             if (menuMatch || aboutMatch || expMatch || occMatch) {
               throw new APIError('Cannot delete media that is actively referenced in Page Media.', 400);

@@ -150,93 +150,52 @@ export default function ExperienceClient({ locale, pageMedia, experienceData }: 
         </div>
       </section>
 
-      {/* Materials */}
+      {/* The Craft */}
       <section className="py-24 md:py-32 bg-[var(--ink)] text-[var(--ivory-50)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-center">
             
-            <div className="order-2 md:order-1 max-w-md">
-              <h2 className="font-serif text-4xl md:text-5xl mb-8">
-                {experienceData?.materials.heading}
-              </h2>
-              <p className="text-[var(--ivory-200)] mb-6 leading-relaxed">
-                {experienceData?.materials.body1}
-              </p>
-              <p className="text-[var(--ivory-200)] leading-relaxed">
-                {experienceData?.materials.body2}
-              </p>
-            </div>
+            {/* Left Column: Editorial Text */}
+            <motion.div
+              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10%" }}
+              className="max-w-xl"
+            >
+              {/* Short thin horizontal editorial hairline */}
+              <div className="w-12 h-px bg-[var(--terracotta)]/70 mb-8" />
 
-            <div className="order-1 md:order-2 grid grid-cols-2 gap-4">
-              <motion.div 
-                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                className="aspect-square relative overflow-hidden"
-              >
-                {pageMedia?.experience.materialImage01?.src ? (
-                  <ResponsiveImage 
-                    src={pageMedia.experience.materialImage01.src} 
-                    alt={pageMedia.experience.materialImage01.alt || 'Material 01'} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#8B5A47]" />
-                )}
-              </motion.div>
-              <motion.div 
-                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="aspect-square relative overflow-hidden"
-              >
-                {pageMedia?.experience.materialImage02?.src ? (
-                  <ResponsiveImage 
-                    src={pageMedia.experience.materialImage02.src} 
-                    alt={pageMedia.experience.materialImage02.alt || 'Material 02'} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#E8E4D9]" />
-                )}
-              </motion.div>
-              <motion.div 
-                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="aspect-square relative overflow-hidden"
-              >
-                {pageMedia?.experience.materialImage03?.src ? (
-                  <ResponsiveImage 
-                    src={pageMedia.experience.materialImage03.src} 
-                    alt={pageMedia.experience.materialImage03.alt || 'Material 03'} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#B5A18C]" />
-                )}
-              </motion.div>
-              <motion.div 
-                initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-                className="aspect-square relative overflow-hidden"
-              >
-                {pageMedia?.experience.materialImage04?.src ? (
-                  <ResponsiveImage 
-                    src={pageMedia.experience.materialImage04.src} 
-                    alt={pageMedia.experience.materialImage04.alt || 'Material 04'} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#2C2420]" />
-                )}
-              </motion.div>
-            </div>
-            
+              {/* Large serif heading */}
+              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[var(--ivory-50)] mb-8 tracking-tight">
+                {experienceData?.craft?.heading || 'The Craft'}
+              </h2>
+
+              {/* Terracotta muted italic introduction */}
+              <p className="font-serif text-2xl md:text-3xl italic text-[var(--terracotta)] leading-relaxed mb-6 whitespace-pre-line">
+                {experienceData?.craft?.intro || 'Behind every plate is a rhythm\nof preparation and precision.'}
+              </p>
+
+              {/* Supporting paragraph in muted ivory */}
+              <p className="text-[var(--ivory-200)] text-base md:text-lg leading-relaxed">
+                {experienceData?.craft?.body || 'The experience at GEMA is shaped as much by what happens behind the pass as what arrives at the table. Open-kitchen energy, careful plating, and handmade detail give every dish its character.'}
+              </p>
+            </motion.div>
+
+            {/* Right Column: Chef Plating Photography */}
+            <motion.div
+              initial={prefersReduced ? { opacity: 1 } : { opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-10%" }}
+              className="relative w-full aspect-[5/6] max-w-[340px] sm:max-w-[380px] md:max-w-[460px] lg:max-w-[470px] max-h-[560px] mx-auto md:ml-auto md:mr-0 overflow-hidden"
+            >
+              <ResponsiveImage
+                src={pageMedia?.experience?.craftImage?.src || '/media/experience/experience-the-craft-chef-plating.webp'}
+                alt={pageMedia?.experience?.craftImage?.alt || (locale === 'id' ? 'Chef menata hidangan di GEMA' : 'Chef plating a dish at GEMA')}
+                className="w-full h-full aspect-[5/6]"
+                imgClassName="object-cover object-[center_35%] brightness-[0.9]"
+              />
+            </motion.div>
+
           </div>
         </div>
       </section>

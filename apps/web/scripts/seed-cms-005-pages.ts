@@ -87,10 +87,10 @@ export async function seedCMS005Pages() {
         eveningHeading: 'Evening Shadows',
         eveningDescription: 'Candlelight catches the subtle veining of the marble tables. The room feels closer, more intimate, designed for lingering over wine and dessert.',
       },
-      materials: {
-        heading: 'The Materials',
-        body1: 'We chose materials that age gracefully and tell a story. Warm terracotta, brushed brass, textured plaster walls, and Italian marble form the foundation of GEMA.',
-        body2: 'These elements provide a neutral but textured backdrop that allows the colors of the food and the vibrancy of the guests to take center stage.',
+      craft: {
+        heading: 'The Craft',
+        intro: 'Behind every plate is a rhythm\nof preparation and precision.',
+        body: 'The experience at GEMA is shaped as much by what happens behind the pass as what arrives at the table. Open-kitchen energy, careful plating, and handmade detail give every dish its character.',
       },
     },
     overrideAccess: true,
@@ -114,11 +114,8 @@ export async function seedCMS005Pages() {
         eveningHeading: 'Bayang Malam',
         eveningDescription: 'Cahaya lilin memantul pada urat marmer meja. Ruangan terasa lebih akrab dan intim, dirancang untuk berlama-lama menikmati anggur dan hidangan penutup.',
       },
-      materials: {
-        heading: 'Material',
-        body1: 'Kami memilih material yang menua dengan anggun dan bertutur tentang sebuah kisah. Terakota hangat, kuningan bertekstur, plesteran dinding berkarakter, dan marmer Italia menjadi fondasi GEMA.',
-        body2: 'Elemen-elemen ini menjadi latar belakang netral bertekstur yang memungkinkan warna-warni hidangan dan kehangatan para tamu menjadi pusat perhatian.',
-      },
+      // Note: Indonesian translation for The Craft is omitted per PO directive
+      // to preserve existing localization architecture and report missing translation.
     },
     overrideAccess: true,
   });

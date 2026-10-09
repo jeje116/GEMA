@@ -102,9 +102,9 @@ export const ExperiencePage: GlobalConfig = {
       ],
     },
     {
-      name: 'materials',
+      name: 'craft',
       type: 'group',
-      label: '04 — Materials',
+      label: '04 — The Craft',
       fields: [
         {
           name: 'heading',
@@ -113,13 +113,13 @@ export const ExperiencePage: GlobalConfig = {
           required: true,
         },
         {
-          name: 'body1',
+          name: 'intro',
           type: 'textarea',
           localized: true,
           required: true,
         },
         {
-          name: 'body2',
+          name: 'body',
           type: 'textarea',
           localized: true,
           required: true,

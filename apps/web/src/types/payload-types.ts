@@ -915,6 +915,10 @@ export interface PageMedia {
     eveningImage: number | Media;
     detailsImage: number | Media;
     /**
+     * The Craft section photograph (Chef plating). Fallback used if unselected.
+     */
+    craftImage?: (number | null) | Media;
+    /**
      * Select the image shown in Material slot 01 (Transitional color swatch shown if unselected).
      */
     materialImage01?: (number | null) | Media;
@@ -1056,10 +1060,10 @@ export interface ExperiencePage {
     eveningHeading: string;
     eveningDescription: string;
   };
-  materials: {
+  craft: {
     heading: string;
-    body1: string;
-    body2: string;
+    intro: string;
+    body: string;
   };
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
@@ -1316,6 +1320,7 @@ export interface PageMediaSelect<T extends boolean = true> {
         morningImage?: T;
         eveningImage?: T;
         detailsImage?: T;
+        craftImage?: T;
         materialImage01?: T;
         materialImage02?: T;
         materialImage03?: T;
@@ -1459,12 +1464,12 @@ export interface ExperiencePageSelect<T extends boolean = true> {
         eveningHeading?: T;
         eveningDescription?: T;
       };
-  materials?:
+  craft?:
     | T
     | {
         heading?: T;
-        body1?: T;
-        body2?: T;
+        intro?: T;
+        body?: T;
       };
   _status?: T;
   updatedAt?: T;

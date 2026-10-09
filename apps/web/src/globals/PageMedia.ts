@@ -84,6 +84,15 @@ export const PageMedia: GlobalConfig = {
           required: true,
         },
         {
+          name: 'craftImage',
+          type: 'relationship',
+          relationTo: 'media',
+          required: false,
+          admin: {
+            description: 'The Craft section photograph (Chef plating). Fallback used if unselected.',
+          },
+        },
+        {
           name: 'materialImage01',
           type: 'relationship',
           relationTo: 'media',
